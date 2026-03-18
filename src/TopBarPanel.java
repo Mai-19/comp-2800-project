@@ -1,6 +1,9 @@
 import java.awt.FlowLayout;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
-import javax.swing.JButton;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public class TopBarPanel extends JPanel {
@@ -18,10 +21,13 @@ public class TopBarPanel extends JPanel {
         this.setLayout(new FlowLayout(FlowLayout.RIGHT));
     }
 
-    JButton settingsButton;
+    MusicPlayerButton settingsButton;
     private void addComponents() {
-        settingsButton = new JButton();
-        settingsButton.setText("Settings");
+        try {
+            settingsButton = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/settings-sliders.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         settingsButton.setActionCommand("settings");
 
         this.add(settingsButton);

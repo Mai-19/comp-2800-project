@@ -1,5 +1,8 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.HashSet;
 
 public class SettingsPanel extends JPanel {
@@ -7,7 +10,7 @@ public class SettingsPanel extends JPanel {
     private Model model;
     private HashSet<String> directories;
     private JPanel directoryListPanel;
-    private JButton backBtn;
+    private MusicPlayerButton backBtn;
 
     public SettingsPanel(Model model) {
         super();
@@ -16,7 +19,11 @@ public class SettingsPanel extends JPanel {
         directories = new HashSet<>();
 
         setLayout(new BorderLayout(0, 0));
-        backBtn = new JButton("back");
+        try {
+            backBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/arrow-alt-circle-left.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         backBtn.setActionCommand("back");
         add(buildSettingsBox(), BorderLayout.CENTER);
     }
@@ -58,7 +65,12 @@ public class SettingsPanel extends JPanel {
 
         JLabel headerLabel = new JLabel("Directories");
         headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD));
-        JButton addBtn = new JButton("add");
+        MusicPlayerButton addBtn = null;
+        try {
+            addBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/plus.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         addBtn.addActionListener(e -> openFileChooser());
 
         header.add(headerLabel, BorderLayout.WEST);
@@ -100,7 +112,12 @@ public class SettingsPanel extends JPanel {
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
 
         JLabel label = new JLabel(path);
-        JButton deleteBtn = new JButton("delete");
+        MusicPlayerButton deleteBtn = null;
+        try {
+            deleteBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/trash.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         deleteBtn.addActionListener(e -> {
             directories.remove(path);
             model.removeDirectory(path);

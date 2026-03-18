@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.swing.ImageIcon;
+import javax.swing.Timer;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -15,6 +16,11 @@ import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.images.Artwork;
+
+import net.beadsproject.beads.core.AudioContext;
+import net.beadsproject.beads.data.SampleManager;
+import net.beadsproject.beads.ugens.Gain;
+import net.beadsproject.beads.ugens.SamplePlayer;
 
 public class Model {
     private View view;
@@ -24,13 +30,36 @@ public class Model {
     private HashSet<String> directories;
     private ArrayList<Song> songs;
     private Path directoryObjectPath;
+
+    private AudioContext audioContext;
+    private SamplePlayer samplePlayer;
+    private Gain volumeControlGain;
+
+    private AudioHeader currentSongHeader;
+
+    private boolean userAdjustingTime;
+
     public Model() {
         super();
+
+        userAdjustingTime = false;
+
+        audioContext = AudioContext.getDefaultContext();
+        volumeControlGain = new Gain(audioContext, 2, 0.5f);
+        audioContext.start();
 
         directories = new HashSet<>();
         songs = new ArrayList<>();
 
-        musicFileExtensions = new String[]{"mp3", "wav", "ogg"};
+        Timer progressTimer = new Timer(250, e -> {
+            if (samplePlayer != null && !samplePlayer.isPaused() && !userAdjustingTime) {
+                view.setProgress((int) (samplePlayer.getPosition() / 1000));
+            }
+        });
+
+        progressTimer.start();
+
+        musicFileExtensions = new String[]{"mp3", "wav", "flac"};
 
         Path path = Path.of(System.getProperty("user.home"), "COMP2800-MusicProjectData");
         try {
@@ -100,6 +129,7 @@ public class Model {
     }
 
     public void addSong(Path p) {
+        audioContext.start();
         try {
             AudioFile f = AudioFileIO.read(p.toFile());
             Tag tag = f.getTag();
@@ -126,21 +156,73 @@ public class Model {
     }
 
     public void play(int row) {
+        if (samplePlayer != null) {
+            samplePlayer.kill();
+        }
+        samplePlayer = new SamplePlayer(audioContext, SampleManager.sample(songs.get(row).getPath()));
+        volumeControlGain.addInput(samplePlayer);
+        audioContext.out.addInput(volumeControlGain);
         try {
             AudioFile f = AudioFileIO.read(Path.of(songs.get(row).getPath()).toFile());
+            currentSongHeader = f.getAudioHeader();
             Tag tag = f.getTag();
             Artwork artwork = tag.getFirstArtwork();
             if (artwork != null) {
                 byte[] imageData = artwork.getBinaryData();
                 ImageIcon icon = new ImageIcon(imageData);
-                view.updatePlayingSong(songs.get(row), new ImageIcon(icon.getImage().getScaledInstance(68, 68, Image.SCALE_SMOOTH)));
+                view.updatePlayingSong(songs.get(row), new ImageIcon(icon.getImage().getScaledInstance(68, 68, Image.SCALE_FAST)));
             } else {
                 ImageIcon albumArtLabel = new ImageIcon(new ImageIcon(getClass().getResource("placeholder.png")).getImage().getScaledInstance(68, 68, Image.SCALE_SMOOTH));
-                view.updatePlayingSong(songs.get(row), albumArtLabel);
-                
+                view.updatePlayingSong(songs.get(row), albumArtLabel);  
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setPlaybackTime(int time) {
+        samplePlayer.setPosition(time);
+    }
+
+    public void forwardSong() {
+        if (samplePlayer.getPosition() >= (currentSongHeader.getTrackLength()*1000)-5000) nextSong();
+        else samplePlayer.setPosition(samplePlayer.getPosition()+5000);
+        view.shiftProgress(5);
+    }
+    public void rewindSong() {
+        if (samplePlayer.getPosition() <= 5000) samplePlayer.setPosition(0);
+        else samplePlayer.setPosition(samplePlayer.getPosition()-5000);
+        view.shiftProgress(-5);
+    }
+
+    public void nextSong() {
+        // TODO: implement...
+    }
+    public void previousSong() {
+        // TODO: implement...
+    }
+
+    public void togglePlayback() {
+        if (samplePlayer.isPaused()) samplePlayer.pause(false);
+        else samplePlayer.pause(true);
+    }
+
+    public void pausePlayback() {
+        samplePlayer.pause(true);
+    }
+    
+    public void resumePlayback() {
+        samplePlayer.pause(false);
+    }
+
+    public void setUserAdjustingTime(boolean userAdjustingTime) {
+        this.userAdjustingTime = userAdjustingTime;
+    }
+
+    // volume needs to be on a logarithmic scale because ears don't perceive volume linearly
+    public void setVolume(float value) {
+        float linear = value/10f;
+        float log = (float) (Math.pow(linear, 2.0));
+        volumeControlGain.setGain(log);
     }
 }

@@ -25,11 +25,12 @@ public class PlayerPanel extends JPanel {
         topBar = new TopBarPanel(model);
 
         musicList = new MusicPanel(model);
+        RoundedPanel rounded = new RoundedPanel(musicList, 60);
 
         bottomBar = new BottomBarPanel(model);
 
         this.add(topBar, BorderLayout.NORTH);
-        this.add(musicList, BorderLayout.CENTER);
+        this.add(rounded, BorderLayout.CENTER);
         this.add(bottomBar, BorderLayout.SOUTH);
     }
 

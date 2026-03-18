@@ -1,6 +1,7 @@
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class View {
         screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
 
         frame = new JFrame();
+        frame.setFont(UIManager.getFont("Label.font"));
 
         addComponents();
 
@@ -69,6 +71,7 @@ public class View {
         frame.addWindowListener(closingListener);
         frame.addComponentListener(resizeListener);
         playerPanel.getTopBar().settingsButton.addActionListener(buttonListener);
+        playerPanel.getBottomBar().addActionListener(buttonListener);
         settingsPanel.getBackBtn().addActionListener(buttonListener);
     }
 
@@ -103,5 +106,16 @@ public class View {
         playerPanel.getBottomBar().setCurrentTime("0:00");
         playerPanel.getBottomBar().setTotalTime((String)song.getInfo()[4]);
         playerPanel.getBottomBar().setAlbumArt(icon);
+    }
+
+    public void setProgress(int value) {
+        playerPanel.getBottomBar().setProgress(value);
+        playerPanel.getBottomBar().setCurrentTime(
+            (value/60)
+            +":"+
+            ((value%60)<10?"0"+(value%60) : (value%60)));
+    }
+    public void shiftProgress(int value) {
+        playerPanel.getBottomBar().setProgress(playerPanel.getBottomBar().getProgress() + value);
     }
 }

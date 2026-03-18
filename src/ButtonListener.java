@@ -18,6 +18,16 @@ public class ButtonListener implements ActionListener{
             case "back":
                 model.changeView(Cards.PLAYER);
                 break;
+
+            case "toggle playback":
+                model.togglePlayback();
+                break;
+            case "forward":
+                model.forwardSong();
+                break;
+            case "rewind":
+                model.rewindSong();
+                break;
             default:
                 break;
         }

@@ -1,19 +1,26 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class BottomBarPanel extends JPanel {
 
     private Model model;
 
     private JLabel albumArtLabel;
-    private JLabel songTitleLabel;
-    private JLabel albumArtistLabel;
+    private ScrollingLabel songTitleLabel;
+    private ScrollingLabel albumArtistLabel;
     private JSlider progressBar;
     private JLabel currentTimeLabel;
     private JLabel totalTimeLabel;
     private JSlider volumeSlider;
-    private JButton shuffleBtn, prevBtn, rewindBtn, playPauseBtn, forwardBtn, nextBtn, repeatBtn;
-    private JButton volumeBtn;
+    private MusicPlayerButton shuffleBtn, prevBtn, rewindBtn, playPauseBtn, forwardBtn, nextBtn, repeatBtn;
+    private MusicPlayerButton volumeBtn;
+
+    private int unMuteVolume;
+    private boolean muteFlag;
 
     public BottomBarPanel(Model model) {
         super();
@@ -38,8 +45,8 @@ public class BottomBarPanel extends JPanel {
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
 
-        songTitleLabel = new JLabel("Song Title");
-        albumArtistLabel = new JLabel("Album  •  Artist");
+        songTitleLabel = new ScrollingLabel();
+        albumArtistLabel = new ScrollingLabel();
 
         infoPanel.add(songTitleLabel);
         infoPanel.add(Box.createVerticalStrut(3));
@@ -57,13 +64,21 @@ public class BottomBarPanel extends JPanel {
         JPanel buttonsRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
         buttonsRow.setOpaque(false);
 
-        shuffleBtn   = new JButton("Shuffle");
-        prevBtn      = new JButton("Prev");
-        rewindBtn    = new JButton("-10s");
-        playPauseBtn = new JButton("Play");
-        forwardBtn   = new JButton("+10s");
-        nextBtn      = new JButton("Next");
-        repeatBtn    = new JButton("Repeat");
+        try {
+            shuffleBtn   = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/shuffle.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+            prevBtn      = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/backward-fast.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+            rewindBtn    = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/step-backward.png"))).getScaledInstance(19, 19, BufferedImage.SCALE_SMOOTH)));
+            playPauseBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/play-pause.png"))).getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
+            forwardBtn   = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/step-forward.png"))).getScaledInstance(19, 19, BufferedImage.SCALE_SMOOTH)));
+            nextBtn      = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/forward-fast.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+            repeatBtn    = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/arrows-repeat.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        rewindBtn.setActionCommand("rewind");
+        playPauseBtn.setActionCommand("toggle playback");
+        forwardBtn.setActionCommand("forward");
 
         buttonsRow.add(shuffleBtn);
         buttonsRow.add(prevBtn);
@@ -80,6 +95,18 @@ public class BottomBarPanel extends JPanel {
         totalTimeLabel = new JLabel("0:00");
         progressBar = new JSlider(0, 100, 0);
 
+        progressBar.addChangeListener(e -> {
+            if (progressBar.getValueIsAdjusting()) {
+                model.pausePlayback();
+                model.setUserAdjustingTime(true);
+                model.setPlaybackTime(progressBar.getValue()*1000);
+            }
+            else {
+                model.setUserAdjustingTime(false);
+                model.resumePlayback();
+            }
+        });
+
         progressRow.add(currentTimeLabel, BorderLayout.WEST);
         progressRow.add(progressBar, BorderLayout.CENTER);
         progressRow.add(totalTimeLabel, BorderLayout.EAST);
@@ -95,32 +122,78 @@ public class BottomBarPanel extends JPanel {
         panel.setOpaque(false);
         panel.setPreferredSize(new Dimension(160, 60));
 
-        volumeBtn = new JButton("Vol");
-        volumeSlider = new JSlider(0, 100, 70);
+        try {
+            volumeBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/volume.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        volumeSlider = new JSlider(0, 10, 7);
         volumeSlider.setPreferredSize(new Dimension(90, 20));
+
+        volumeSlider.addChangeListener(e -> {
+            if (volumeSlider.getValueIsAdjusting()) {
+                model.setVolume(volumeSlider.getValue());
+                if (volumeSlider.getValue() == 0) {
+                    try {
+                        volumeBtn.setIcon(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/volume-slash.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                } else {
+                    try {
+                        volumeBtn.setIcon(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/volume.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        muteFlag = true;
+        volumeBtn.addActionListener(e -> {
+            if (muteFlag) {
+                unMuteVolume = volumeSlider.getValue();
+                volumeSlider.setValue(0);
+                model.setVolume(0);
+                try {
+                    volumeBtn.setIcon(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/volume-slash.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                muteFlag = false;
+            } else {
+                volumeSlider.setValue(unMuteVolume);
+                try {
+                    volumeBtn.setIcon(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/volume.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                model.setVolume(unMuteVolume);
+                muteFlag = true;
+            }
+        });
 
         panel.add(volumeBtn);
         panel.add(volumeSlider);
         return panel;
     }
 
-    public void setSongTitle(String title)    { songTitleLabel.setText(title); }
-    public void setAlbumArtist(String text)   { albumArtistLabel.setText(text); }
-    public void setProgress(int value)        { progressBar.setValue(value); }
-    public void setCurrentTime(String time)   { currentTimeLabel.setText(time); }
-    public void setTotalTime(String time)     { totalTimeLabel.setText(time); }
-    public void setVolume(int value)          { volumeSlider.setValue(value); }
-    public void setPlayPauseText(String text) { playPauseBtn.setText(text); }
-    public void setAlbumArt(ImageIcon icon)   { albumArtLabel.setIcon(icon); }
+    public void addActionListener(ActionListener actionListener) {
+        rewindBtn.addActionListener(actionListener);
+        playPauseBtn.addActionListener(actionListener);
+        forwardBtn.addActionListener(actionListener);
+    }
 
-    public JButton getShuffleBtn()   { return shuffleBtn; }
-    public JButton getPrevBtn()      { return prevBtn; }
-    public JButton getRewindBtn()    { return rewindBtn; }
-    public JButton getPlayPauseBtn() { return playPauseBtn; }
-    public JButton getForwardBtn()   { return forwardBtn; }
-    public JButton getNextBtn()      { return nextBtn; }
-    public JButton getRepeatBtn()    { return repeatBtn; }
-    public JButton getVolumeBtn()    { return volumeBtn; }
-    public JSlider getProgressBar()  { return progressBar; }
-    public JSlider getVolumeSlider() { return volumeSlider; }
+    public int getProgress() { return progressBar.getValue(); }
+
+    public void setSongTitle(String title) { songTitleLabel.setScrollingText(title); }
+    public void setAlbumArtist(String text) { albumArtistLabel.setScrollingText(text); }
+    public void setCurrentTime(String time) { currentTimeLabel.setText(time); }
+    public void setAlbumArt(ImageIcon icon) { albumArtLabel.setIcon(icon); }
+    public void setTotalTime(String time) { 
+        totalTimeLabel.setText(time);
+        progressBar.setMaximum((Integer.parseInt(time.split(":")[0])*60) + (Integer.parseInt(time.split(":")[1])));
+    }
+
+    public void setProgress(int value) { progressBar.setValue(value); }
 }

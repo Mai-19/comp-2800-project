@@ -1,10 +1,10 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.RoundRectangle2D;
 import java.util.Collection;
 
 public class MusicPanel extends JPanel {
@@ -37,28 +37,21 @@ public class MusicPanel extends JPanel {
                 }
             }
         });
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 1));
         scroll.setOpaque(false);
         scroll.getViewport().setOpaque(false);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         add(scroll, BorderLayout.CENTER);
-    }
-    @Override
-    public void paint(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 50, 50));
-        super.paint(g2);
-
-        // Reset clip so border isn't clipped, then draw on top
-        g2.setClip(null);
-        g2.setColor(Color.GRAY);
-        g2.setStroke(new BasicStroke(1.5f));
-        g2.draw(new RoundRectangle2D.Double(1, 1, getWidth() - 2, getHeight() - 2, 50, 50));
-        
-        g2.dispose();
     }
 
     public void setData(Collection<Song> songs) { 
