@@ -18,6 +18,8 @@ public class ButtonListener implements ActionListener{
             case "back":
                 model.changeView(Cards.PLAYER);
                 break;
+            case "refresh":
+                model.indexSongs();
 
             case "toggle playback":
                 model.togglePlayback();

@@ -16,8 +16,9 @@ public class BottomBarPanel extends JPanel {
     private JLabel currentTimeLabel;
     private JLabel totalTimeLabel;
     private JSlider volumeSlider;
-    private MusicPlayerButton shuffleBtn, prevBtn, rewindBtn, playPauseBtn, forwardBtn, nextBtn, repeatBtn;
+    private MusicPlayerButton prevBtn, rewindBtn, playPauseBtn, forwardBtn, nextBtn;
     private MusicPlayerButton volumeBtn;
+    private MusicPlayerToggleButton shuffleBtn, repeatBtn;
 
     private int unMuteVolume;
     private boolean muteFlag;
@@ -65,13 +66,13 @@ public class BottomBarPanel extends JPanel {
         buttonsRow.setOpaque(false);
 
         try {
-            shuffleBtn   = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/shuffle.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-            prevBtn      = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/backward-fast.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-            rewindBtn    = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/step-backward.png"))).getScaledInstance(19, 19, BufferedImage.SCALE_SMOOTH)));
+            shuffleBtn = new MusicPlayerToggleButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/shuffle.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+            prevBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/backward-fast.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+            rewindBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/step-backward.png"))).getScaledInstance(19, 19, BufferedImage.SCALE_SMOOTH)));
             playPauseBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/play-pause.png"))).getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
-            forwardBtn   = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/step-forward.png"))).getScaledInstance(19, 19, BufferedImage.SCALE_SMOOTH)));
-            nextBtn      = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/forward-fast.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-            repeatBtn    = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/arrows-repeat.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+            forwardBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/step-forward.png"))).getScaledInstance(19, 19, BufferedImage.SCALE_SMOOTH)));
+            nextBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/forward-fast.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+            repeatBtn = new MusicPlayerToggleButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/arrows-repeat.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,6 +95,7 @@ public class BottomBarPanel extends JPanel {
         currentTimeLabel = new JLabel("0:00");
         totalTimeLabel = new JLabel("0:00");
         progressBar = new JSlider(0, 100, 0);
+        progressBar.setFocusable(false);
 
         progressBar.addChangeListener(e -> {
             if (progressBar.getValueIsAdjusting()) {
@@ -129,6 +131,7 @@ public class BottomBarPanel extends JPanel {
         }
         volumeSlider = new JSlider(0, 10, 7);
         volumeSlider.setPreferredSize(new Dimension(90, 20));
+        volumeSlider.setFocusable(false);
 
         volumeSlider.addChangeListener(e -> {
             if (volumeSlider.getValueIsAdjusting()) {
@@ -182,6 +185,15 @@ public class BottomBarPanel extends JPanel {
         rewindBtn.addActionListener(actionListener);
         playPauseBtn.addActionListener(actionListener);
         forwardBtn.addActionListener(actionListener);
+    }
+
+    public void setPlaybackButtonIcon(String string) {
+        try {
+            if (string.equals("play")) playPauseBtn.setIcon(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/play.png"))).getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
+            else if (string.equals("pause")) playPauseBtn.setIcon(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/pause.png"))).getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getProgress() { return progressBar.getValue(); }

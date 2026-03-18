@@ -74,6 +74,7 @@ public class View {
         playerPanel.getTopBar().getSettingsButton().addActionListener(buttonListener);
         playerPanel.getBottomBar().addActionListener(buttonListener);
         settingsPanel.getBackBtn().addActionListener(buttonListener);
+        settingsPanel.getRefreshBtn().addActionListener(buttonListener);
     }
 
     public void changeView(Cards settings) {
@@ -123,4 +124,8 @@ public class View {
     public void setRowFilter(RowFilter<Object,Object> regexFilter) {
         playerPanel.getMusicList().getTableSorter().setRowFilter(regexFilter);
     }
+
+	public void setPlaybackButtonIcon(String string) {
+        playerPanel.getBottomBar().setPlaybackButtonIcon(string);
+	}
 }

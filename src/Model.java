@@ -75,8 +75,7 @@ public class Model {
     public void addGUI(View view) {
         this.view = view;
         loadDirectories();
-        indexSongs();
-        view.updateSongs(songs);
+        // TODO: load the songs from the database into the songs arraylist
     }
 
     public void update() {
@@ -127,10 +126,10 @@ public class Model {
                 e.printStackTrace();
             }
         }
+        view.updateSongs(songs);
     }
 
     public void addSong(Path p) {
-        audioContext.start();
         try {
             AudioFile f = AudioFileIO.read(p.toFile());
             Tag tag = f.getTag();
@@ -179,44 +178,63 @@ public class Model {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        view.setPlaybackButtonIcon("pause");
     }
 
     public void setPlaybackTime(int time) {
+        if (samplePlayer == null) return;
         samplePlayer.setPosition(time);
     }
 
     public void forwardSong() {
+        if (samplePlayer == null) return;
         if (samplePlayer.getPosition() >= (currentSongHeader.getTrackLength()*1000)-5000) nextSong();
         else samplePlayer.setPosition(samplePlayer.getPosition()+5000);
         view.shiftProgress(5);
     }
     public void rewindSong() {
+        if (samplePlayer == null) return;
         if (samplePlayer.getPosition() <= 5000) samplePlayer.setPosition(0);
         else samplePlayer.setPosition(samplePlayer.getPosition()-5000);
         view.shiftProgress(-5);
     }
 
     public void nextSong() {
+        if (samplePlayer == null) return;
         // TODO: implement...
     }
     public void previousSong() {
+        if (samplePlayer == null) return;
         // TODO: implement...
     }
 
     public void togglePlayback() {
-        if (samplePlayer.isPaused()) samplePlayer.pause(false);
-        else samplePlayer.pause(true);
+        if (samplePlayer == null) return;
+        if (samplePlayer.isPaused()) {
+            samplePlayer.pause(false);
+           view.setPlaybackButtonIcon("pause");
+        }
+        else {
+            samplePlayer.pause(true);
+            view.setPlaybackButtonIcon("play");
+        }
     }
 
     public void pausePlayback() {
+        if (samplePlayer == null) return;
         samplePlayer.pause(true);
+        view.setPlaybackButtonIcon("play");
     }
     
     public void resumePlayback() {
+        if (samplePlayer == null) return;
         samplePlayer.pause(false);
+        view.setPlaybackButtonIcon("pause");
+
     }
 
     public void setUserAdjustingTime(boolean userAdjustingTime) {
+        if (samplePlayer == null) return;
         this.userAdjustingTime = userAdjustingTime;
     }
 

@@ -10,7 +10,7 @@ public class SettingsPanel extends JPanel {
     private Model model;
     private HashSet<String> directories;
     private JPanel directoryListPanel;
-    private MusicPlayerButton backBtn;
+    private MusicPlayerButton backBtn, refreshBtn;
 
     public SettingsPanel(Model model) {
         super();
@@ -21,10 +21,12 @@ public class SettingsPanel extends JPanel {
         setLayout(new BorderLayout(0, 0));
         try {
             backBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/arrow-alt-circle-left.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
+            refreshBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/refresh.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
         } catch (IOException e) {
             e.printStackTrace();
         }
         backBtn.setActionCommand("back");
+        refreshBtn.setActionCommand("refresh");
         add(buildSettingsBox(), BorderLayout.CENTER);
     }
 
@@ -41,7 +43,7 @@ public class SettingsPanel extends JPanel {
         title.setFont(title.getFont().deriveFont(Font.PLAIN, 28f));
         titleRow.add(backBtn, BorderLayout.WEST);
         titleRow.add(title, BorderLayout.CENTER);
-        titleRow.add(Box.createHorizontalStrut(backBtn.getPreferredSize().width), BorderLayout.EAST);
+        titleRow.add(refreshBtn, BorderLayout.EAST);
         box.add(titleRow, BorderLayout.NORTH);
 
         box.add(buildDirectoriesTable(), BorderLayout.CENTER);
@@ -141,6 +143,7 @@ public class SettingsPanel extends JPanel {
     }
 
     public JButton getBackBtn() { return backBtn; }
+    public MusicPlayerButton getRefreshBtn() { return refreshBtn; }
     public HashSet<String> getDirectories() { return directories; }
 
     public void addDirectories(HashSet<String> d) {

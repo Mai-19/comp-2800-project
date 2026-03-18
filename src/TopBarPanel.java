@@ -1,9 +1,11 @@
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -54,7 +56,8 @@ public class TopBarPanel extends JPanel {
         centerPanel.setOpaque(false);
         centerPanel.add(searchIcon);
         centerPanel.add(searchField);
-
+        
+        this.add(Box.createRigidArea(new Dimension(settingsButton.getPreferredSize().width, 0)), BorderLayout.WEST);
         this.add(centerPanel, BorderLayout.CENTER);
         this.add(settingsButton, BorderLayout.EAST);
     }
