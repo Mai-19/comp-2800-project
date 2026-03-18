@@ -34,7 +34,7 @@ public class MusicPanel extends JPanel {
                 if (e.getClickCount() == 2) {
                     int row = table.rowAtPoint(e.getPoint());
                     if (row != -1) {
-                        model.play (row);
+                        model.play(table.convertRowIndexToModel(row));
                     }
                 }
             }
