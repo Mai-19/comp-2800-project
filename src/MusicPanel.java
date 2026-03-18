@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -11,6 +12,7 @@ public class MusicPanel extends JPanel {
 
     private DefaultTableModel tableModel;
     private JTable table;
+    private TableRowSorter<DefaultTableModel> sorter;
     private Model model;
     public MusicPanel(Model model) {
         super(new BorderLayout());
@@ -44,6 +46,9 @@ public class MusicPanel extends JPanel {
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
+        sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
+
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 1));
         scroll.setOpaque(false);
@@ -62,5 +67,5 @@ public class MusicPanel extends JPanel {
     }
 
     public JTable getTable() { return table; }
-    public DefaultTableModel getTableModel() { return tableModel; }
+    public TableRowSorter<DefaultTableModel> getTableSorter() { return sorter; }
 }

@@ -1,6 +1,7 @@
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.RowFilter;
 import javax.swing.UIManager;
 
 import java.awt.GraphicsEnvironment;
@@ -70,7 +71,7 @@ public class View {
         ClosingListener closingListener = new ClosingListener(model);
         frame.addWindowListener(closingListener);
         frame.addComponentListener(resizeListener);
-        playerPanel.getTopBar().settingsButton.addActionListener(buttonListener);
+        playerPanel.getTopBar().getSettingsButton().addActionListener(buttonListener);
         playerPanel.getBottomBar().addActionListener(buttonListener);
         settingsPanel.getBackBtn().addActionListener(buttonListener);
     }
@@ -117,5 +118,9 @@ public class View {
     }
     public void shiftProgress(int value) {
         playerPanel.getBottomBar().setProgress(playerPanel.getBottomBar().getProgress() + value);
+    }
+
+    public void setRowFilter(RowFilter<Object,Object> regexFilter) {
+        playerPanel.getMusicList().getTableSorter().setRowFilter(regexFilter);
     }
 }

@@ -11,11 +11,19 @@ import javax.swing.border.AbstractBorder;
 
 public class RoundedBorder extends AbstractBorder{
     private int radius;
+    private int inset;
 
     public RoundedBorder (int radius) {
         super();
 
         this.radius = radius;
+        this.inset = 10;
+    }
+    public RoundedBorder (int radius, int insets) {
+        super();
+
+        this.radius = radius;
+        this.inset = insets;
     }
 
     @Override
@@ -30,6 +38,6 @@ public class RoundedBorder extends AbstractBorder{
 
     @Override
     public Insets getBorderInsets(Component c) {
-        return new Insets(10, 10, 10, 10); // padding inside border
+        return new Insets(inset, inset, inset, inset); // padding inside border
     }
 }

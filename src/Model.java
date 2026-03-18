@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.swing.ImageIcon;
+import javax.swing.RowFilter;
 import javax.swing.Timer;
 
 import org.jaudiotagger.audio.AudioFile;
@@ -224,5 +225,9 @@ public class Model {
         float linear = value/10f;
         float log = (float) (Math.pow(linear, 2.0));
         volumeControlGain.setGain(log);
+    }
+
+    public void setRowFilter(RowFilter<Object,Object> regexFilter) {
+        view.setRowFilter(regexFilter);
     }
 }
