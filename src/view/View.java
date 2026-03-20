@@ -5,10 +5,10 @@ import javax.swing.JPanel;
 import javax.swing.RowFilter;
 import javax.swing.UIManager;
 
-import listeners.ButtonListener;
-import listeners.ClosingListener;
-import listeners.PlaybackTimer;
-import listeners.ResizeListener;
+import controller.ButtonListener;
+import controller.ClosingListener;
+import controller.PlaybackTimer;
+import controller.ResizeListener;
 import model.Model;
 import view.components.PlayerPanel;
 import view.components.SettingsPanel;

@@ -6,7 +6,7 @@ public class Song {
     public Song(String title, String artist, String album, String year, int seconds, String length, String path) {
         super();
 
-        this.info = new Object[]{title, artist, album, year, seconds, length};
+        this.info = new Object[]{title, artist, album, year, length, seconds};
         this.path = path;
     }
 

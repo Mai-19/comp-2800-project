@@ -9,7 +9,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
-import listeners.TableMouseListener;
+import controller.TableMouseListener;
 
 import java.awt.BorderLayout;
 import java.awt.Point;

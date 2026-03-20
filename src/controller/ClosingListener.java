@@ -1,4 +1,4 @@
-package listeners;
+package controller;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 

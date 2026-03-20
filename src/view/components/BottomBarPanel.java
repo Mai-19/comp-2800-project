@@ -6,8 +6,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import listeners.PlaybackSliderListener;
-import listeners.VolumeSliderListener;
+import controller.PlaybackSliderListener;
+import controller.VolumeSliderListener;
 import model.Model;
 import view.Icons;
 

@@ -8,7 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import listeners.SearchListener;
+import controller.SearchListener;
 import view.Icons;
 import view.View;
 
