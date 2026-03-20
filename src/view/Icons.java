@@ -6,6 +6,9 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+/**
+ * class with icons
+ */
 public class Icons {
     public static final ImageIcon PLACEHOLDER_ALBUM = load("placeholder.png", 70, 70);
 
@@ -26,6 +29,13 @@ public class Icons {
     public static final ImageIcon TRASH = load("icons/trash.png", 25, 25);
     public static final ImageIcon VOLUME = load("icons/volume.png", 25, 25);
 
+    /**
+     * Loads an image from the classpath and scales it to a given width and height.
+     * @param path
+     * @param width
+     * @param height
+     * @return
+     */
     private static ImageIcon load(String path, int width, int height) {
         try {
             var url = Icons.class.getClassLoader().getResource(path);

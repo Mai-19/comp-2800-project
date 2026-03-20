@@ -20,6 +20,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 
+/**
+ * Class for the settings panel
+ */
 public class SettingsPanel extends JPanel {
 
     private Model model;
@@ -27,6 +30,11 @@ public class SettingsPanel extends JPanel {
     private JPanel directoryListPanel;
     private MusicPlayerButton backBtn, refreshBtn;
 
+    /**
+     * Constructor for the settings panel
+     * @param model
+     * @param view
+     */
     public SettingsPanel(Model model, View view) {
         super();
         this.model = model;
@@ -40,6 +48,10 @@ public class SettingsPanel extends JPanel {
         add(buildSettingsBox(), BorderLayout.CENTER);
     }
 
+    /**
+     * Builds the settings box
+     * @return
+     */
     private JPanel buildSettingsBox() {
         JPanel wrapper = new JPanel(new GridBagLayout());
 
@@ -62,6 +74,9 @@ public class SettingsPanel extends JPanel {
         return wrapper;
     }
     
+    /**
+     * Builds the list of directories
+     */
     private MusicPlayerButton addBtn;
     private JPanel buildDirectoriesTable() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -101,6 +116,9 @@ public class SettingsPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * lists the directories
+     */
     public void refreshDirectoryList() {
         directoryListPanel.removeAll();
         int i = 0;
@@ -112,7 +130,13 @@ public class SettingsPanel extends JPanel {
         directoryListPanel.revalidate();
         directoryListPanel.repaint();
     }
-    private MusicPlayerButton deleteBtn;
+
+    /**
+     * creates one row of the directory table
+     * @param path
+     * @param index
+     * @return
+     */
     private JPanel buildDirectoryRow(String path, int index) {
         JPanel row = new JPanel(new BorderLayout());
         row.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
@@ -121,7 +145,7 @@ public class SettingsPanel extends JPanel {
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
 
         JLabel label = new JLabel(path);
-        deleteBtn = new MusicPlayerButton(Icons.TRASH);
+        MusicPlayerButton deleteBtn = new MusicPlayerButton(Icons.TRASH);
         deleteBtn.setActionCommand("remove directory:"+path);
         deleteBtn.addActionListener(view.getButtonListener());
 
@@ -130,6 +154,9 @@ public class SettingsPanel extends JPanel {
         return row;
     }
 
+    /**
+     * opens the file chooser to allow adding another directory
+     */
     public void openFileChooser() {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -140,8 +167,8 @@ public class SettingsPanel extends JPanel {
         }
     }
 
+    // getters
     public JButton getBackBtn() { return backBtn; }
     public MusicPlayerButton getRefreshBtn() { return refreshBtn; }
     public MusicPlayerButton getAddDirectoryBtn() { return addBtn; }
-    public MusicPlayerButton getDeleteBtn() { return deleteBtn; }
 }

@@ -6,16 +6,26 @@ import javax.swing.event.ChangeListener;
 import model.Model;
 import view.components.MusicPlayerSlider;
 
+/**
+ * Class for handling the volume slider
+ */
 public class VolumeSliderListener implements ChangeListener {
 
     private Model model;
 
+    /**
+     * Constructor for the VolumeSliderListener class
+     * @param model
+     */
     public VolumeSliderListener(Model model) {
         super();
 
         this.model = model;
     }
 
+    /**
+     * sets volume on volume bar drag
+     */
     @Override
     public void stateChanged(ChangeEvent e) {
         MusicPlayerSlider slider = (MusicPlayerSlider) e.getSource();

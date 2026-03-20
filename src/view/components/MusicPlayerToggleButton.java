@@ -7,7 +7,14 @@ import java.awt.RenderingHints;
 import javax.swing.Icon;
 import javax.swing.JToggleButton;
 
+/**
+ * Class for the music player toggle button
+ */
 public class MusicPlayerToggleButton extends JToggleButton {
+    /**
+     * constructor for the MusicPlayerToggleButton class
+     * @param icon
+     */
     public MusicPlayerToggleButton(Icon icon) {
         super(icon);
         setContentAreaFilled(false);
@@ -17,6 +24,9 @@ public class MusicPlayerToggleButton extends JToggleButton {
         setOpaque(false);
     }
 
+    /**
+     * paints the component
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

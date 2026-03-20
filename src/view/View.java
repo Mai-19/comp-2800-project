@@ -19,11 +19,21 @@ import java.awt.Point;
 import java.awt.CardLayout;
 import java.awt.DisplayMode;
 
+/**
+ * class with all the view components
+ */
 public class View {
     private Model model;
     // the screens information, like refresh rate and size
     private DisplayMode screen;
 
+    private ResizeListener resizeListener;
+    private ButtonListener buttonListener;
+    private ClosingListener closingListener;
+    /**
+     * constructor for the view class
+     * @param model
+     */
     public View(Model model) {
         super();
 
@@ -31,6 +41,11 @@ public class View {
 
         PlaybackTimer playbackTimer = new PlaybackTimer(model, this);
         playbackTimer.start();
+
+        
+        resizeListener = new ResizeListener(this);
+        buttonListener = new ButtonListener(model, this);
+        closingListener = new ClosingListener(model);
         
         createFrame();
         registerControllers();
@@ -39,6 +54,9 @@ public class View {
     }
 
     private JFrame frame;
+    /**
+     * creates a new JFrame with the model as its controller
+     */
     private void createFrame() {
         // getting the default screen
         screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
@@ -64,6 +82,9 @@ public class View {
     private PlayerPanel playerPanel;
     private SettingsPanel settingsPanel;
 
+    /**
+     * add the components to the view
+     */
     private void addComponents() {
         cardLayout = new CardLayout();
         contentPane = new JPanel(cardLayout);
@@ -76,13 +97,11 @@ public class View {
         
         frame.setContentPane(contentPane);
     }
-    private ResizeListener resizeListener;
-    private ButtonListener buttonListener;
-    private ClosingListener closingListener;
+    
+    /**
+     * register the controllers for the view
+     */
     private void registerControllers() {
-        resizeListener = new ResizeListener(this);
-        buttonListener = new ButtonListener(model, this);
-        closingListener = new ClosingListener(model);
         frame.addWindowListener(closingListener);
         frame.addComponentListener(resizeListener);
         playerPanel.getTopBar().getSettingsButton().addActionListener(buttonListener);
@@ -92,6 +111,10 @@ public class View {
         settingsPanel.getAddDirectoryBtn().addActionListener(buttonListener);
     }
 
+    /**
+     * change the view of the application
+     * @param settings
+     */
     public void changeView(Cards settings) {
         switch (settings) {
             case Cards.SETTINGS:
@@ -105,10 +128,17 @@ public class View {
         }
     }
 
+    /**
+     * updates view
+     */
     public void update() {
         frame.repaint();
     }
 
+    /**
+     * sets progress on the playback slider
+     * @param value
+     */
     public void setProgress(int value) {
         playerPanel.getBottomBar().setProgress(value);
         playerPanel.getBottomBar().setCurrentTime(
@@ -117,37 +147,28 @@ public class View {
             ((value%60)<10?"0"+(value%60) : (value%60)));
     }
 
-    public void setRowFilter(RowFilter<Object,Object> regexFilter) {
-        playerPanel.getMusicPanel().getTableSorter().setRowFilter(regexFilter);
-    }
-
+    // interactions
     public void toggleMute() {
         playerPanel.getBottomBar().toggleMute();
     }
-
     public void togglePlayback() {
         playerPanel.getBottomBar().togglePlayback();
     }
-
     public void addDirectory() {
         settingsPanel.openFileChooser();
     }
-
     public void refreshDirectoryList() {
         settingsPanel.refreshDirectoryList();
     }
-
     public void pullSongs() {
         playerPanel.getMusicPanel().setData(model.getSongs());
     }
-
     public void pullMetadata() {
         playerPanel.getBottomBar().setSongTitle(model.getTitle());
         playerPanel.getBottomBar().setAlbum(model.getAlbum());
         playerPanel.getBottomBar().setAlbumArt(new ImageIcon(new ImageIcon(model.getArtworkBytes()).getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH)));
         playerPanel.getBottomBar().setTotalTime(model.getLength(), model.getSeconds());
     }
-
     public void clearMetadata() {
         if (playerPanel == null) return;
         playerPanel.getBottomBar().setSongTitle("");
@@ -157,18 +178,24 @@ public class View {
         playerPanel.getBottomBar().setTotalTime("0:00", 0);
     }
 
+    // getters
+    public int getProgress() {
+        return playerPanel.getBottomBar().getProgress();
+    }
     public ButtonListener getButtonListener() {
         return buttonListener;
     }
-
     public int rowAtPoint(Point point) {
         return playerPanel.getMusicPanel().rowAtPoint(point);
     }
-
     public int convertRowIndexToModel(int row) {
         return playerPanel.getMusicPanel().convertRowIndexToModel(row);
     }
 
+    // setters
+    public void setRowFilter(RowFilter<Object,Object> regexFilter) {
+        playerPanel.getMusicPanel().getTableSorter().setRowFilter(regexFilter);
+    }
     public void setPlayback(String string) {
         playerPanel.getBottomBar().setPlayback(string);
     }

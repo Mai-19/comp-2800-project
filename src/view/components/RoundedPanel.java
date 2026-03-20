@@ -8,9 +8,17 @@ import java.awt.geom.RoundRectangle2D;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
+/**
+ * rounded panel class
+ */
 public class RoundedPanel extends JLayeredPane {
     private int radius;
 
+    /**
+     * constructor for the rounded panel class
+     * @param content
+     * @param radius
+     */
     public RoundedPanel(JPanel content, int radius) {
         this.radius = radius;
         setOpaque(false);
@@ -29,6 +37,9 @@ public class RoundedPanel extends JLayeredPane {
         add(overlay, JLayeredPane.PALETTE_LAYER);
     }
 
+    /**
+     * sets the layout of the panel
+     */
     @Override
     public void doLayout() {
         super.doLayout();
@@ -37,6 +48,9 @@ public class RoundedPanel extends JLayeredPane {
         }
     }
 
+    /**
+     * paints the panel
+     */
     @Override
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();

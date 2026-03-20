@@ -9,12 +9,22 @@ import java.awt.RenderingHints;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
+/**
+ * Class for the music player slider UI
+ */
 public class MusicPlayerSliderUI extends BasicSliderUI{
 
+    /**
+     * constructor for the MusicPlayerSliderUI class
+     * @param b
+     */
     public MusicPlayerSliderUI(JSlider b) {
         super(b);
     }
 
+    /**
+     * paints the slider
+     */
     @Override
     public void paintTrack(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -32,6 +42,9 @@ public class MusicPlayerSliderUI extends BasicSliderUI{
         g2.dispose();
     }
 
+    /**
+     * paint the thumb
+     */
     @Override
     public void paintThumb(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -44,6 +57,9 @@ public class MusicPlayerSliderUI extends BasicSliderUI{
         g2.dispose();
     }
 
+    /**
+     * calculate the thumbs size
+     */
     @Override
     protected void calculateThumbSize() {
         super.calculateThumbSize();

@@ -12,8 +12,16 @@ import listeners.SearchListener;
 import view.Icons;
 import view.View;
 
+/**
+ * class with search bar and settings button
+ */
 public class TopBarPanel extends JPanel {
     private View view;
+
+    /**
+     * constructor for the top bar panel class
+     * @param view
+     */
     public TopBarPanel(View view) {
         super();
 
@@ -24,13 +32,19 @@ public class TopBarPanel extends JPanel {
         registerControllers();
     }
 
+    /**
+     * creates the layout for the top bar panel class
+     */
     private void createLayout() {
         this.setLayout(new BorderLayout());
     }
-
+    
     private MusicPlayerButton settingsButton;
     private JTextField searchField;
     private JLabel searchIcon;
+    /**
+     * adds components to the panel
+     */
     private void addComponents() {
         settingsButton = new MusicPlayerButton(Icons.SETTINGS_SLIDERS);
         searchIcon = new JLabel(Icons.SEARCH);
@@ -51,10 +65,14 @@ public class TopBarPanel extends JPanel {
         this.add(settingsButton, BorderLayout.EAST);
     }
 
+    /**
+     * registers the controllers for the panel
+     */
     public void registerControllers() {
         searchField.addCaretListener(new SearchListener(view));
     }
 
+    // getters
     public MusicPlayerButton getSettingsButton() {
         return settingsButton;
     }

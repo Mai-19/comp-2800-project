@@ -10,6 +10,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JLabel;
 import javax.swing.Timer;
 
+/**
+ * Class for the scrolling label
+ */
 public class ScrollingLabel extends JLabel implements ActionListener {
     private String fullText;
     private float offset = 0;
@@ -21,6 +24,9 @@ public class ScrollingLabel extends JLabel implements ActionListener {
     private String displayString;
     private int bareWidth;
 
+    /**
+     * constructor for the scrolling label
+     */
     public ScrollingLabel() {
         super();
         int height = getFontMetrics(getFont()).getHeight();
@@ -30,6 +36,10 @@ public class ScrollingLabel extends JLabel implements ActionListener {
         timer.start();
     }
 
+    /**
+     * sets the scrolling text
+     * @param text
+     */
     public void setScrollingText(String text) {
         displayString = text;
         fullText = text + "     ";
@@ -38,6 +48,9 @@ public class ScrollingLabel extends JLabel implements ActionListener {
         repaint();
     }
 
+    /**
+     * draws text, if the text is too long the text scrolls
+     */
     @Override
     protected void paintComponent(Graphics g) {
         if (fullText == null) return;
@@ -60,6 +73,9 @@ public class ScrollingLabel extends JLabel implements ActionListener {
         g2.dispose();
     }
 
+    /**
+     * on loop of timer
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (bareWidth <= getWidth()) return;

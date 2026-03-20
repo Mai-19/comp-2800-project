@@ -16,28 +16,43 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 
+/**
+ * Class for the bottom bar panel <br>
+ * contains the playback controls <br>
+ * and the album art label
+ */
 public class BottomBarPanel extends JPanel {
 
     private Model model;
 
     private JLabel albumArtLabel;
+    // custom label, scrolls if text is too long
     private ScrollingLabel songTitleLabel;
     private ScrollingLabel albumArtistLabel;
+    // custom sliders, themed
     private MusicPlayerSlider progressBar;
+    private MusicPlayerSlider volumeSlider;
+
     private JLabel currentTimeLabel;
     private JLabel totalTimeLabel;
-    private MusicPlayerSlider volumeSlider;
+    // custom buttons, themed
     private MusicPlayerButton prevBtn, rewindBtn, playPauseBtn, forwardBtn, nextBtn;
     private MusicPlayerButton volumeBtn;
     private MusicPlayerToggleButton shuffleBtn, repeatBtn;
 
+    // saved volume for un-mute event
     private int unMuteVolume;
     private boolean muteFlag;
 
+    /**
+     * constructor for the BottomBarPanel class
+     * @param model
+     */
     public BottomBarPanel(Model model) {
         super();
         this.model = model;
         setLayout(new BorderLayout(10, 0));
+        // padding border
         setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
         setPreferredSize(new Dimension(0, 90));
 
@@ -46,12 +61,17 @@ public class BottomBarPanel extends JPanel {
         add(buildVolumePanel(), BorderLayout.EAST);
     }
 
+    /**
+     * creates album art and scrolling label panel
+     * @return JPanel
+     */
     private JPanel buildAlbumArtAndInfo() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panel.setOpaque(false);
 
-        albumArtLabel = new JLabel(Icons.PLACEHOLDER_ALBUM); // 68x68
-        albumArtLabel.setPreferredSize(new Dimension(68, 68));
+        // placeholder image
+        albumArtLabel = new JLabel(Icons.PLACEHOLDER_ALBUM);
+        albumArtLabel.setPreferredSize(new Dimension(70, 70));
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
@@ -69,6 +89,10 @@ public class BottomBarPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * creates the center controls panel
+     * @return
+     */
     private JPanel buildCenterControls() {
         JPanel panel = new JPanel(new BorderLayout(0, 4));
         panel.setOpaque(false);
@@ -116,6 +140,10 @@ public class BottomBarPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Builds the volume panel
+     * @return
+     */
     private JPanel buildVolumePanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
         panel.setOpaque(false);
@@ -137,6 +165,7 @@ public class BottomBarPanel extends JPanel {
         return panel;
     }
 
+    // adds action listeners to the controls
     public void addActionListener(ActionListener actionListener) {
         rewindBtn.addActionListener(actionListener);
         playPauseBtn.addActionListener(actionListener);
@@ -144,32 +173,16 @@ public class BottomBarPanel extends JPanel {
         volumeBtn.addActionListener(actionListener);
     }
 
+    // toggles the play buttons icon
     public void togglePlayback() {
         if (playPauseBtn.getIcon().equals(Icons.PLAY)) playPauseBtn.setIcon(Icons.PAUSE);
         else playPauseBtn.setIcon(Icons.PLAY);
     }
 
-    public int getProgress() { return progressBar.getValue(); }
-
-    public void setSongTitle(String title) { songTitleLabel.setScrollingText(title); }
-    public void setAlbum(String text) { albumArtistLabel.setScrollingText(text); }
-    public void setCurrentTime(String time) { currentTimeLabel.setText(time); }
-    public void setAlbumArt(ImageIcon icon) { albumArtLabel.setIcon(icon); }
-    public void setTotalTime(String time, int seconds) { 
-        totalTimeLabel.setText(time);
-        progressBar.setMaximum(seconds);
-    }
-
-    public void setProgress(int value) { progressBar.setValue(value); }
-
-    public void setVolume(float value) {
-        if (value == 0) {
-            volumeBtn.setIcon(Icons.MUTED_VOLUME);
-        } else {
-            volumeBtn.setIcon(Icons.VOLUME);
-        }
-    }
-
+    /**
+     * toggles the mute icon and mutes the volume.
+     * on second click it resets the volume to its previous position
+     */
     public void toggleMute() {
         if (muteFlag) {
             unMuteVolume = volumeSlider.getValue();
@@ -185,6 +198,26 @@ public class BottomBarPanel extends JPanel {
         }
     }
 
+    // getters
+    public int getProgress() { return progressBar.getValue(); }
+
+    // setters
+    public void setSongTitle(String title) { songTitleLabel.setScrollingText(title); }
+    public void setAlbum(String text) { albumArtistLabel.setScrollingText(text); }
+    public void setCurrentTime(String time) { currentTimeLabel.setText(time); }
+    public void setAlbumArt(ImageIcon icon) { albumArtLabel.setIcon(icon); }
+    public void setTotalTime(String time, int seconds) { 
+        totalTimeLabel.setText(time);
+        progressBar.setMaximum(seconds);
+    }
+    public void setProgress(int value) { progressBar.setValue(value); }
+    public void setVolume(float value) {
+        if (value == 0) {
+            volumeBtn.setIcon(Icons.MUTED_VOLUME);
+        } else {
+            volumeBtn.setIcon(Icons.VOLUME);
+        }
+    }
     public void setPlayback(String string) {
         if (string.equals("play")) playPauseBtn.setIcon(Icons.PLAY);
         else if (string.equals("pause")) playPauseBtn.setIcon(Icons.PAUSE);

@@ -7,8 +7,15 @@ import java.awt.RenderingHints;
 import javax.swing.Icon;
 import javax.swing.JButton;
 
+/**
+ * Class for the music player button
+ */
 public class MusicPlayerButton extends JButton {
 
+    /**
+     * Constructor for the MusicPlayerButton class
+     * @param icon
+     */
     public MusicPlayerButton(Icon icon) {
         super(icon);
         setContentAreaFilled(false);
@@ -18,6 +25,9 @@ public class MusicPlayerButton extends JButton {
         setOpaque(false);
     }
 
+    /**
+     * paints the button
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

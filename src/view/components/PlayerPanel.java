@@ -7,10 +7,18 @@ import javax.swing.JPanel;
 import model.Model;
 import view.View;
 
+/**
+ * Class for the player panel
+ */
 public class PlayerPanel extends JPanel {
     private Model model;
     private View view;
 
+    /**
+     * Constructor for the PlayerPanel class
+     * @param model
+     * @param view
+     */
     public PlayerPanel(Model model, View view) {
         super();
 
@@ -24,6 +32,9 @@ public class PlayerPanel extends JPanel {
     private MusicPanel musicPanel;
 
     private BottomBarPanel bottomBar;
+    /**
+     * Method for creating the layout of the player panel
+     */
     private void createLayout() {
         this.setLayout(new BorderLayout());
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -40,6 +51,7 @@ public class PlayerPanel extends JPanel {
         this.add(bottomBar, BorderLayout.SOUTH);
     }
 
+    // getters
     public TopBarPanel getTopBar() {
         return topBar;
     }
