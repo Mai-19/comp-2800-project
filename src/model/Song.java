@@ -1,3 +1,4 @@
+package model;
 public class Song {
     private Object[] info;
     private String path;

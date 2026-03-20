@@ -1,3 +1,7 @@
+package app;
+import model.Model;
+import view.View;
+
 public class App {
     public static void main(String[] args) throws Exception {
         System.setProperty("awt.useSystemAAFontSettings", "on");

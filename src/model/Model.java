@@ -1,3 +1,4 @@
+package model;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,7 +10,6 @@ import java.util.HashSet;
 
 import javax.swing.ImageIcon;
 import javax.swing.RowFilter;
-import javax.swing.Timer;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -22,6 +22,8 @@ import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.SamplePlayer;
+import view.Cards;
+import view.View;
 
 public class Model {
     private View view;
@@ -51,14 +53,6 @@ public class Model {
 
         directories = new HashSet<>();
         songs = new ArrayList<>();
-
-        Timer progressTimer = new Timer(250, e -> {
-            if (samplePlayer != null && !samplePlayer.isPaused() && !userAdjustingTime) {
-                view.setProgress((int) (samplePlayer.getPosition() / 1000));
-            }
-        });
-
-        progressTimer.start();
 
         musicFileExtensions = new String[]{"mp3", "wav", "flac"};
 
@@ -243,9 +237,25 @@ public class Model {
         float linear = value/10f;
         float log = (float) (Math.pow(linear, 2.0));
         volumeControlGain.setGain(log);
+        view.setVolume(value);
     }
 
     public void setRowFilter(RowFilter<Object,Object> regexFilter) {
         view.setRowFilter(regexFilter);
+    }
+
+    public void toggleMute() {
+        view.toggleMute();
+    }
+
+    public int getProgress() {
+        if (samplePlayer != null && !samplePlayer.isPaused()) {
+            return (int) (samplePlayer.getPosition() / 1000);
+        }
+        return -1; // -1 means dont update
+    }
+
+    public boolean isAdjustingTime() {
+        return userAdjustingTime;
     }
 }

@@ -1,8 +1,8 @@
-import javax.imageio.ImageIO;
+package view.components;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -10,13 +10,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
+import model.Model;
+import view.Icons;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.HashSet;
 
 public class SettingsPanel extends JPanel {
@@ -33,12 +34,8 @@ public class SettingsPanel extends JPanel {
         directories = new HashSet<>();
 
         setLayout(new BorderLayout(0, 0));
-        try {
-            backBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/arrow-alt-circle-left.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-            refreshBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/refresh.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        backBtn = new MusicPlayerButton(Icons.BACK);
+        refreshBtn = new MusicPlayerButton(Icons.REFRESH);
         backBtn.setActionCommand("back");
         refreshBtn.setActionCommand("refresh");
         add(buildSettingsBox(), BorderLayout.CENTER);
@@ -65,7 +62,8 @@ public class SettingsPanel extends JPanel {
         wrapper.add(box);
         return wrapper;
     }
-
+    
+    private MusicPlayerButton addBtn;
     private JPanel buildDirectoriesTable() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
@@ -81,13 +79,10 @@ public class SettingsPanel extends JPanel {
 
         JLabel headerLabel = new JLabel("Directories");
         headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD));
-        MusicPlayerButton addBtn = null;
-        try {
-            addBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/plus.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        addBtn.addActionListener(e -> openFileChooser());
+
+        addBtn = new MusicPlayerButton(Icons.ADD_DIRECTORY);
+
+        addBtn.setActionCommand("add directory");
 
         header.add(headerLabel, BorderLayout.WEST);
         header.add(addBtn, BorderLayout.EAST);
@@ -107,12 +102,11 @@ public class SettingsPanel extends JPanel {
         return panel;
     }
 
-    private void refreshDirectoryList() {
+    public void refreshDirectoryList() {
         directoryListPanel.removeAll();
         int i = 0;
         for (String string : directories) {
             directoryListPanel.add(buildDirectoryRow(string, i++));
-            
         }
         // Filler pushes rows to the top instead of stretching them
         directoryListPanel.add(Box.createVerticalGlue());
@@ -129,23 +123,15 @@ public class SettingsPanel extends JPanel {
 
         JLabel label = new JLabel(path);
         MusicPlayerButton deleteBtn = null;
-        try {
-            deleteBtn = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/trash.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        deleteBtn.addActionListener(e -> {
-            directories.remove(path);
-            model.removeDirectory(path);
-            refreshDirectoryList();
-        });
+        deleteBtn = new MusicPlayerButton(Icons.TRASH);
+        deleteBtn.setActionCommand("remove directory:"+path);
 
         row.add(label, BorderLayout.WEST);
         row.add(deleteBtn, BorderLayout.EAST);
         return row;
     }
 
-    private void openFileChooser() {
+    public void openFileChooser() {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int result = chooser.showOpenDialog(this);
@@ -159,6 +145,7 @@ public class SettingsPanel extends JPanel {
     public JButton getBackBtn() { return backBtn; }
     public MusicPlayerButton getRefreshBtn() { return refreshBtn; }
     public HashSet<String> getDirectories() { return directories; }
+    public MusicPlayerButton getAddDirectoryBtn() { return addBtn; }
 
     public void addDirectories(HashSet<String> d) {
         directories.addAll(d);

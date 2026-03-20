@@ -1,26 +1,27 @@
+package view.components;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.RowFilter;
+
+import listeners.SearchListener;
+import view.Icons;
+import view.View;
 
 public class TopBarPanel extends JPanel {
-    private Model model;
-    public TopBarPanel(Model model) {
+    private View view;
+    public TopBarPanel(View view) {
         super();
 
-        this.model = model;
+        this.view = view;
 
         createLayout();
         addComponents();
+        registerControllers();
     }
 
     private void createLayout() {
@@ -31,26 +32,14 @@ public class TopBarPanel extends JPanel {
     private JTextField searchField;
     private JLabel searchIcon;
     private void addComponents() {
-        try {
-            settingsButton = new MusicPlayerButton(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/settings-sliders.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-            searchIcon = new JLabel(new ImageIcon((ImageIO.read(this.getClass().getResource("/icons/search.png"))).getScaledInstance(20, 20, BufferedImage.SCALE_SMOOTH)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        settingsButton = new MusicPlayerButton(Icons.SETTINGS_SLIDERS);
+        searchIcon = new JLabel(Icons.SEARCH);
         settingsButton.setActionCommand("settings");
 
         searchField = new JTextField(30);
         searchField.setBorder(new RoundedBorder(20, 7));
         searchField.setToolTipText("Search");
         searchField.setBackground(getBackground());
-        searchField.addCaretListener(e -> {
-            String text = searchField.getText();
-            if (text.isEmpty()) {
-                model.setRowFilter(null);
-            } else {
-                model.setRowFilter(RowFilter.regexFilter("(?i)" + text));
-            }
-        });
 
         JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerPanel.setOpaque(false);
@@ -60,6 +49,10 @@ public class TopBarPanel extends JPanel {
         this.add(Box.createRigidArea(new Dimension(settingsButton.getPreferredSize().width, 0)), BorderLayout.WEST);
         this.add(centerPanel, BorderLayout.CENTER);
         this.add(settingsButton, BorderLayout.EAST);
+    }
+
+    public void registerControllers() {
+        searchField.addCaretListener(new SearchListener(view));
     }
 
     public MusicPlayerButton getSettingsButton() {

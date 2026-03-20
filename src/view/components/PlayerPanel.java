@@ -1,15 +1,21 @@
+package view.components;
 import java.awt.BorderLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import model.Model;
+import view.View;
+
 public class PlayerPanel extends JPanel {
     private Model model;
+    private View view;
 
-    public PlayerPanel(Model model) {
+    public PlayerPanel(Model model, View view) {
         super();
 
         this.model = model;
+        this.view = view;
         createLayout();
     }
 
@@ -22,7 +28,7 @@ public class PlayerPanel extends JPanel {
         this.setLayout(new BorderLayout());
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        topBar = new TopBarPanel(model);
+        topBar = new TopBarPanel(view);
 
         musicList = new MusicPanel(model);
         RoundedPanel rounded = new RoundedPanel(musicList, 60);

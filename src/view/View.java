@@ -1,8 +1,18 @@
+package view;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.RowFilter;
 import javax.swing.UIManager;
+
+import listeners.ButtonListener;
+import listeners.ClosingListener;
+import listeners.PlaybackTimer;
+import listeners.ResizeListener;
+import model.Model;
+import model.Song;
+import view.components.PlayerPanel;
+import view.components.SettingsPanel;
 
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
@@ -19,6 +29,9 @@ public class View {
         super();
 
         this.model = model;
+
+        PlaybackTimer playbackTimer = new PlaybackTimer(model, this);
+        playbackTimer.start();
         
         createFrame();
         registerControllers();
@@ -56,7 +69,7 @@ public class View {
         cardLayout = new CardLayout();
         contentPane = new JPanel(cardLayout);
 
-        playerPanel = new PlayerPanel(model);
+        playerPanel = new PlayerPanel(model, this);
         settingsPanel = new SettingsPanel(model);
 
         contentPane.add(playerPanel, Cards.PLAYER.name());
@@ -67,7 +80,7 @@ public class View {
 
     private void registerControllers() {
         ResizeListener resizeListener = new ResizeListener(model);
-        ButtonListener buttonListener = new ButtonListener(model);
+        ButtonListener buttonListener = new ButtonListener(model, this);
         ClosingListener closingListener = new ClosingListener(model);
         frame.addWindowListener(closingListener);
         frame.addComponentListener(resizeListener);
@@ -75,6 +88,7 @@ public class View {
         playerPanel.getBottomBar().addActionListener(buttonListener);
         settingsPanel.getBackBtn().addActionListener(buttonListener);
         settingsPanel.getRefreshBtn().addActionListener(buttonListener);
+        settingsPanel.getAddDirectoryBtn().addActionListener(buttonListener);
     }
 
     public void changeView(Cards settings) {
@@ -128,4 +142,20 @@ public class View {
 	public void setPlaybackButtonIcon(String string) {
         playerPanel.getBottomBar().setPlaybackButtonIcon(string);
 	}
+
+    public void setVolume(float value) {
+        playerPanel.getBottomBar().setVolume(value);
+    }
+
+    public void toggleMute() {
+        playerPanel.getBottomBar().toggleMute();
+    }
+
+    public void addDirectory() {
+        settingsPanel.openFileChooser();
+    }
+
+    public void refreshDirectoryList() {
+        settingsPanel.refreshDirectoryList();
+    }
 }

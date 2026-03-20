@@ -1,3 +1,4 @@
+package view.components;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
