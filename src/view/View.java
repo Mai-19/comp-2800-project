@@ -15,7 +15,6 @@ import view.components.SettingsPanel;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.List;
 import java.awt.CardLayout;
 import java.awt.DisplayMode;
