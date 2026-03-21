@@ -1,7 +1,6 @@
 package model;
+
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,10 +22,12 @@ public class Model {
     // valid extensions
     private String[] musicFileExtensions;
 
-    // lists of songs and directories and the home path
+    // lists of songs and directories
     private HashSet<String> directories;
     private ArrayList<Song> songs;
-    private Path directoryObjectPath;
+
+    // database manager
+    private DatabaseManager db;
 
     // audio playback related
     private AudioContext audioContext;
@@ -34,18 +35,13 @@ public class Model {
     private Gain volumeControlGain;
 
     // metadata related
-    private String title, artist, album, year, length, path;
+    private String title, artist, album, year, length;
     private int seconds;
     private byte[] artworkBytes;
 
     // safety lock for user adjusting time
     private boolean userAdjustingTime;
     private boolean metadataChanged;
-
-    /**
-     * TODO: setup a queue, shuffle, and repeat
-     * TODO: pull songs from DB on launch
-     */
 
     public Model() {
         super();
@@ -60,103 +56,125 @@ public class Model {
         directories = new HashSet<>();
         songs = new ArrayList<>();
 
-        musicFileExtensions = new String[]{"mp3", "wav", "flac"};
+        musicFileExtensions = new String[] { "mp3", "wav", "flac" };
 
-        Path path = Path.of(System.getProperty("user.home"), "COMP2800-MusicProjectData");
-        try {
-            Files.createDirectories(path);
-            directoryObjectPath = path.resolve("directories.dat");
-            if (!Files.exists(directoryObjectPath)) Files.createFile(directoryObjectPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        db = new DatabaseManager();
+        db.init();
 
+        // load saved data from database only
         loadDirectories();
-        indexSongs();
+        loadSongsFromDatabase();
     }
 
-    // TODO: replace with database
-    public void saveDirectories() { 
-        try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(directoryObjectPath))){
-            out.writeObject(directories);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    // directories are saved immediately
+    public void saveDirectories() {
     }
 
-    // TODO: replace with database
-    @SuppressWarnings("unchecked")
     public void loadDirectories() {
+        directories = new HashSet<>(db.loadDirectories());
+    }
+
+    public void loadSongsFromDatabase() {
+        songs = new ArrayList<>(db.loadSongs());
+    }
+
+    // manual refresh / reindex
+    public void indexSongs() {
+        for (String dir : directories) {
+            indexDirectory(dir);
+        }
+        loadSongsFromDatabase();
+    }
+
+    // scan one directory only
+    public void indexDirectory(String directoryPath) {
         try {
-            if (Files.size(directoryObjectPath) > 0) {
-                try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(directoryObjectPath))){
-                    directories = (HashSet<String>)in.readObject();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {}
-            }
+            Files.walk(Path.of(directoryPath))
+                .filter(Files::isRegularFile)
+                .filter(this::isMusicFile)
+                .forEach(p -> addSong(p, directoryPath));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void indexSongs() {
-        if (songs != null) songs.clear();
-        for (String dir : directories) {
-            try {
-                Files.walk(Path.of(dir))
-                    .filter(Files::isRegularFile)
-                    .filter(p -> {
-                        String name = p.toString().toLowerCase();
-                        for (String ext : musicFileExtensions)
-                            if (name.endsWith("." + ext)) return true;
-                        return false;
-                    })
-                    .forEach(p -> addSong(p));
-            } catch (IOException e) {
-                e.printStackTrace();
+    private boolean isMusicFile(Path p) {
+        String name = p.toString().toLowerCase();
+        for (String ext : musicFileExtensions) {
+            if (name.endsWith("." + ext)) {
+                return true;
             }
         }
+        return false;
     }
 
-    // TODO: add song to database as well.
-    public void addSong(Path p) {
-        try {
-            AudioFile f = AudioFileIO.read(p.toFile());
-            Tag tag = f.getTag();
-            String title  = tag.getFirst(FieldKey.TITLE);
-            String artist = tag.getFirst(FieldKey.ARTIST);
-            String album  = tag.getFirst(FieldKey.ALBUM);
-            String year   = tag.getFirst(FieldKey.YEAR);
-            AudioHeader header = f.getAudioHeader();
-            int seconds = header.getTrackLength();
-            String length = String.format("%d:%02d", seconds / 60, seconds % 60);
+    // add or update song in database
+    public void addSong(Path p, String directoryPath) {
+    System.out.println("Indexing: " + p);
+    try {
+        AudioFile f = AudioFileIO.read(p.toFile());
+        Tag tag = f.getTag();
+        AudioHeader header = f.getAudioHeader();
 
-            songs.add(new Song(title, artist, album, year, seconds, length, p.toString()));
-        } catch (Exception e) {
-            e.printStackTrace();
+        String title = "";
+        String artist = "";
+        String album = "";
+        String year = "";
+
+        if (tag != null) {
+            title = safeTagValue(tag.getFirst(FieldKey.TITLE));
+            artist = safeTagValue(tag.getFirst(FieldKey.ARTIST));
+            album = safeTagValue(tag.getFirst(FieldKey.ALBUM));
+            year = safeTagValue(tag.getFirst(FieldKey.YEAR));
+        }
+
+        int seconds = header.getTrackLength();
+        String length = String.format("%d:%02d", seconds / 60, seconds % 60);
+
+        Song song = new Song(title, artist, album, year, seconds, length, p.toString());
+        System.out.println("Added song: " + p);
+        db.addOrUpdateSong(song, directoryPath);
+        System.out.println("Saved to DB: " + p);
+    } catch (Exception e) {
+        System.out.println("Failed to add song: " + p);
+        e.printStackTrace();
+    }
+}
+
+    // keep this overload in case other files already call addSong(path)
+    public void addSong(Path p) {
+        String directoryPath = p.getParent() == null ? "" : p.getParent().toString();
+        addSong(p, directoryPath);
+        loadSongsFromDatabase();
+    }
+
+    public void addDirectory(String absolutePath) {
+        if (directories.add(absolutePath)) {
+            db.addDirectory(absolutePath);
+            indexDirectory(absolutePath);
+            loadSongsFromDatabase();
         }
     }
 
-    // TODO: add directory to database
-    public void addDirectory(String absolutePath) {
-        directories.add(absolutePath);
-    }
-
-    // TODO: remove directory from database
     public void removeDirectory(String path) {
-        directories.remove(path);
+        if (directories.remove(path)) {
+            db.removeSongsForDirectory(path);
+            db.removeDirectory(path);
+            loadSongsFromDatabase();
+        }
     }
 
     public void play(int row) {
         if (samplePlayer != null) {
             samplePlayer.kill();
         }
-        this.getMetadata(row);
+
+        getMetadata(row);
         samplePlayer = new SamplePlayer(audioContext, SampleManager.sample(songs.get(row).getPath()));
         volumeControlGain.addInput(samplePlayer);
         audioContext.out.addInput(volumeControlGain);
 
+        db.recordPlay(songs.get(row).getPath());
     }
 
     private void getMetadata(int row) {
@@ -164,18 +182,33 @@ public class Model {
         try {
             AudioFile f = AudioFileIO.read(Path.of(songs.get(row).getPath()).toFile());
             Tag tag = f.getTag();
-            title  = tag.getFirst(FieldKey.TITLE);
-            artist = tag.getFirst(FieldKey.ARTIST);
-            album  = tag.getFirst(FieldKey.ALBUM);
-            year   = tag.getFirst(FieldKey.YEAR);
-            
+
+            title = "";
+            artist = "";
+            album = "";
+            year = "";
+
+            if (tag != null) {
+                title = safeTagValue(tag.getFirst(FieldKey.TITLE));
+                artist = safeTagValue(tag.getFirst(FieldKey.ARTIST));
+                album = safeTagValue(tag.getFirst(FieldKey.ALBUM));
+                year = safeTagValue(tag.getFirst(FieldKey.YEAR));
+            }
+
             AudioHeader header = f.getAudioHeader();
             seconds = header.getTrackLength();
             length = String.format("%d:%02d", seconds / 60, seconds % 60);
 
-            Artwork artwork = tag.getFirstArtwork();
-            if (artwork != null) artworkBytes = artwork.getBinaryData(); 
-            else artworkBytes = null;
+            if (tag != null) {
+                Artwork artwork = tag.getFirstArtwork();
+                if (artwork != null) {
+                    artworkBytes = artwork.getBinaryData();
+                } else {
+                    artworkBytes = null;
+                }
+            } else {
+                artworkBytes = null;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -183,27 +216,29 @@ public class Model {
 
     public void setPlaybackTime(int time) {
         if (samplePlayer == null) return;
-        samplePlayer.setPosition(time*1000);
+        samplePlayer.setPosition(time * 1000);
     }
 
     public void forwardSong() {
         if (samplePlayer == null) return;
-        if (samplePlayer.getPosition() >= (seconds*1000)-5000) nextSong();
-        else samplePlayer.setPosition(samplePlayer.getPosition()+5000);
+        if (samplePlayer.getPosition() >= (seconds * 1000) - 5000) nextSong();
+        else samplePlayer.setPosition(samplePlayer.getPosition() + 5000);
     }
+
     public void rewindSong() {
         if (samplePlayer == null) return;
         if (samplePlayer.getPosition() <= 5000) samplePlayer.setPosition(0);
-        else samplePlayer.setPosition(samplePlayer.getPosition()-5000);
+        else samplePlayer.setPosition(samplePlayer.getPosition() - 5000);
     }
 
     public void nextSong() {
         if (samplePlayer == null) return;
-        // TODO: implement...
+        // TODO: implement
     }
+
     public void previousSong() {
         if (samplePlayer == null) return;
-        // TODO: implement...
+        // TODO: implement
     }
 
     public void togglePlayback() {
@@ -215,11 +250,10 @@ public class Model {
         if (samplePlayer == null) return;
         samplePlayer.pause(true);
     }
-    
+
     public void resumePlayback() {
         if (samplePlayer == null) return;
         samplePlayer.pause(false);
-
     }
 
     public void setUserAdjustingTime(boolean userAdjustingTime) {
@@ -227,10 +261,9 @@ public class Model {
         this.userAdjustingTime = userAdjustingTime;
     }
 
-    // volume needs to be on a logarithmic scale because ears don't perceive volume linearly
     public void setVolume(float value) {
-        float linear = value/10f;
-        float log = (float) (Math.pow(linear, 2.0));
+        float linear = value / 10f;
+        float log = (float) Math.pow(linear, 2.0);
         volumeControlGain.setGain(log);
     }
 
@@ -238,12 +271,12 @@ public class Model {
         if (samplePlayer != null && !samplePlayer.isPaused()) {
             return (int) (samplePlayer.getPosition() / 1000);
         }
-        return -1; // -1 means don't update
+        return -1;
     }
 
     public boolean hasMetadataChanged() {
         if (metadataChanged) {
-            metadataChanged = false; // reset after read
+            metadataChanged = false;
             return true;
         }
         return false;
@@ -287,5 +320,13 @@ public class Model {
 
     public byte[] getArtworkBytes() {
         return artworkBytes;
+    }
+
+    public DatabaseManager getDb() {
+        return db;
+    }
+
+    private String safeTagValue(String value) {
+        return value == null ? "" : value.trim();
     }
 }
