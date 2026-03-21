@@ -8,6 +8,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DatabaseManager class for the MusicPlayer application.
+ */
 public class DatabaseManager {
 
     private static final String DB_FOLDER = System.getProperty("user.home") + "/COMP2800-MusicProjectData";
@@ -16,7 +19,11 @@ public class DatabaseManager {
 
     private Connection connection;
 
-    // connect to SQLite and create tables
+    /**
+     * connect to SQLite and create tables
+     * 
+     * @return
+     */
     public boolean init() {
         try {
             Files.createDirectories(Paths.get(DB_FOLDER));
@@ -56,7 +63,6 @@ public class DatabaseManager {
         String createDirectories = "CREATE TABLE IF NOT EXISTS DIRECTORIES (" +
                 "    path TEXT PRIMARY KEY" +
                 ")";
-
         String createSongs = "CREATE TABLE IF NOT EXISTS SONGS (" +
                 "    song_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "    title TEXT, " +
@@ -81,11 +87,24 @@ public class DatabaseManager {
                 "    key TEXT PRIMARY KEY, " +
                 "    value TEXT" +
                 ")";
+        String createPlaylists = "CREATE TABLE IF NOT EXISTS PLAYLISTS (" +
+                "    playlist_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "    name TEXT NOT NULL UNIQUE" +
+                ")";
+        String createPlaylistSongs = "CREATE TABLE IF NOT EXISTS PLAYLIST_SONGS (" +
+                "    playlist_id INTEGER, " +
+                "    song_id INTEGER, " +
+                "    PRIMARY KEY (playlist_id, song_id), " +
+                "    FOREIGN KEY (playlist_id) REFERENCES PLAYLISTS(playlist_id) ON DELETE CASCADE, " +
+                "    FOREIGN KEY (song_id) REFERENCES SONGS(song_id) ON DELETE CASCADE" +
+                ")";
         try (Statement stmt = connection.createStatement()) {
             stmt.executeUpdate(createDirectories);
             stmt.executeUpdate(createSongs);
             stmt.executeUpdate(createStats);
             stmt.executeUpdate(createMeta);
+            stmt.executeUpdate(createPlaylists);
+            stmt.executeUpdate(createPlaylistSongs);
         }
     }
 
@@ -410,5 +429,118 @@ public class DatabaseManager {
             System.out.println("Error getting meta: " + e.getMessage());
         }
         return null;
+    }
+
+    // ─── PLAYLISTS ─────────────────────────────────────────────────
+
+    public void createPlaylist(String name) {
+        String sql = "INSERT OR IGNORE INTO PLAYLISTS (name) VALUES (?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error creating playlist: " + e.getMessage());
+        }
+    }
+
+    public void deletePlaylist(String name) {
+        String sql = "DELETE FROM PLAYLISTS WHERE name = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error deleting playlist: " + e.getMessage());
+        }
+    }
+
+    public List<String> loadPlaylists() {
+        List<String> playlists = new ArrayList<>();
+        String sql = "SELECT name FROM PLAYLISTS ORDER BY name COLLATE NOCASE";
+        try (Statement stmt = connection.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                playlists.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading playlists: " + e.getMessage());
+        }
+        return playlists;
+    }
+
+    public void addSongToPlaylist(String playlistName, String songPath) {
+        int playlistId = getPlaylistId(playlistName);
+        int songId = getSongId(songPath);
+        if (playlistId == -1 || songId == -1)
+            return;
+
+        String sql = "INSERT OR IGNORE INTO PLAYLIST_SONGS (playlist_id, song_id) VALUES (?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, playlistId);
+            stmt.setInt(2, songId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error adding song to playlist: " + e.getMessage());
+        }
+    }
+
+    public void removeSongFromPlaylist(String playlistName, String songPath) {
+        int playlistId = getPlaylistId(playlistName);
+        int songId = getSongId(songPath);
+        if (playlistId == -1 || songId == -1)
+            return;
+
+        String sql = "DELETE FROM PLAYLIST_SONGS WHERE playlist_id = ? AND song_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, playlistId);
+            stmt.setInt(2, songId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error removing song from playlist: " + e.getMessage());
+        }
+    }
+
+    public List<Song> loadSongsForPlaylist(String playlistName) {
+        List<Song> songs = new ArrayList<>();
+        int playlistId = getPlaylistId(playlistName);
+        if (playlistId == -1)
+            return songs;
+
+        String sql = "SELECT s.title, s.artist, s.album, s.release_year, s.seconds, s.length, s.path " +
+                "FROM SONGS s " +
+                "JOIN PLAYLIST_SONGS ps ON s.song_id = ps.song_id " +
+                "WHERE ps.playlist_id = ? ORDER BY s.title COLLATE NOCASE";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, playlistId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    songs.add(new Song(
+                            rs.getString("title"),
+                            rs.getString("artist"),
+                            rs.getString("album"),
+                            rs.getString("release_year"),
+                            rs.getInt("seconds"),
+                            rs.getString("length"),
+                            rs.getString("path")));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading songs for playlist: " + e.getMessage());
+        }
+        return songs;
+    }
+
+    private int getPlaylistId(String name) {
+        String sql = "SELECT playlist_id FROM PLAYLISTS WHERE name = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt("playlist_id");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error getting playlist ID: " + e.getMessage());
+        }
+        return -1;
     }
 }

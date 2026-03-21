@@ -1,24 +1,26 @@
 package controller;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import model.Model;
-import view.Cards;
 import view.View;
 
 /**
  * ButtonListener class for all button interactions
  */
-public class ButtonListener implements ActionListener{
+public class ButtonListener implements ActionListener {
 
     private Model model;
     private View view;
-    
+
     /**
      * constructor for the ButtonListener class
+     * 
      * @param model
      * @param view
      */
@@ -42,11 +44,11 @@ public class ButtonListener implements ActionListener{
         switch (action) {
             // open settings menu
             case "settings":
-                view.changeView(Cards.SETTINGS);
+                view.changeView(View.Cards.SETTINGS);
                 break;
             // leave settings menu (to player)
             case "back":
-                view.changeView(Cards.PLAYER);
+                view.changeView(View.Cards.PLAYER);
                 break;
             // reindex songs in the directories and get the view to pull it
             case "refresh":
@@ -61,13 +63,13 @@ public class ButtonListener implements ActionListener{
             // skip ahead 5 seconds
             case "forward":
                 model.forwardSong();
-                view.setProgress(view.getProgress()+5);
+                view.setProgress(view.getProgress() + 5);
                 view.setPlayback("pause");
                 break;
             // skip backwards 5 seconds
             case "rewind":
                 model.rewindSong();
-                view.setProgress(view.getProgress()-5);
+                view.setProgress(view.getProgress() - 5);
                 view.setPlayback("pause");
                 break;
             case "next":
@@ -102,7 +104,27 @@ public class ButtonListener implements ActionListener{
                 view.refreshDirectoryList();
                 view.pullSongs();
                 break;
-            
+            case "create playlist":
+                String name = JOptionPane.showInputDialog(view.getFrame(), "Playlist name:");
+                if (name != null && !name.isBlank()) {
+                    model.createPlaylist(name);
+                    view.getPlayerPanel().getPlaylistsPanel().refreshPlaylists();
+                }
+                break;
+            case "delete playlist":
+                String playlistName = e.getActionCommand().split(":", 2)[1];
+                int confirm = JOptionPane.showConfirmDialog(view.getFrame(),
+                        "Delete playlist \"" + playlistName + "\"?",
+                        "Confirm Delete",
+                        JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    model.deletePlaylist(playlistName);
+                    view.getPlayerPanel().getPlaylistsPanel().refreshPlaylists();
+                }
+                break;
+            case "close playlist":
+                view.getPlayerPanel().getPlaylistsPanel().showList();
+                break;
             case "download stats":
                 JFileChooser chooser = new JFileChooser();
                 chooser.setSelectedFile(new File("weekly-stats.png"));
@@ -116,7 +138,8 @@ public class ButtonListener implements ActionListener{
                 }
                 break;
             // unused
-            default: break;
+            default:
+                break;
         }
     }
 }

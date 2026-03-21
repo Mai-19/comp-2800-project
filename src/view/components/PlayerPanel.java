@@ -1,4 +1,5 @@
 package view.components;
+
 import java.awt.BorderLayout;
 
 import javax.swing.BorderFactory;
@@ -16,6 +17,7 @@ public class PlayerPanel extends JPanel {
 
     /**
      * Constructor for the PlayerPanel class
+     * 
      * @param model
      * @param view
      */
@@ -29,9 +31,13 @@ public class PlayerPanel extends JPanel {
 
     private TopBarPanel topBar;
 
-    private MusicPanel musicPanel;
+    private MusicPlayerTabbedPane tabbedPane;
+
+    private PlaylistPanel playlistPanel;
 
     private BottomBarPanel bottomBar;
+
+    private RoundedPanel rounded;
     /**
      * Method for creating the layout of the player panel
      */
@@ -41,13 +47,19 @@ public class PlayerPanel extends JPanel {
 
         topBar = new TopBarPanel(view);
 
-        musicPanel = new MusicPanel(model, view);
-        RoundedPanel rounded = new RoundedPanel(musicPanel, 60);
+        tabbedPane = new MusicPlayerTabbedPane(view);
+
+        rounded = new RoundedPanel(view.getMusicPanel(), 60);
+        tabbedPane.addTab("All Songs", rounded);
+
+        playlistPanel = new PlaylistPanel(model, view);
+        RoundedPanel temp_rounded = new RoundedPanel(playlistPanel, 60);
+        tabbedPane.addTab("Playlists", temp_rounded);
 
         bottomBar = new BottomBarPanel(model, view);
 
         this.add(topBar, BorderLayout.NORTH);
-        this.add(rounded, BorderLayout.CENTER);
+        this.add(tabbedPane, BorderLayout.CENTER);
         this.add(bottomBar, BorderLayout.SOUTH);
     }
 
@@ -55,10 +67,24 @@ public class PlayerPanel extends JPanel {
     public TopBarPanel getTopBar() {
         return topBar;
     }
-    public MusicPanel getMusicPanel() {
-        return musicPanel;
+
+    public PlaylistPanel getPlaylistsPanel() {
+        return playlistPanel;
     }
+
+    public MusicPlayerTabbedPane getTabbedPane() {
+        return tabbedPane;
+    }
+
     public BottomBarPanel getBottomBar() {
         return bottomBar;
     }
+
+    public void reclaimMusicPanel() {
+        if (view.getMusicPanel().getParent() != null) {
+            view.getMusicPanel().getParent().remove(view.getMusicPanel());
+        }
+        rounded.add(view.getMusicPanel()); 
+    }
+
 }

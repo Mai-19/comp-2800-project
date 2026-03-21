@@ -12,6 +12,7 @@ import javax.swing.table.TableRowSorter;
 import controller.TableMouseListener;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Point;
 import java.util.Collection;
 
@@ -25,7 +26,7 @@ import view.View;
 public class MusicPanel extends JPanel {
 
     private DefaultTableModel tableModel;
-    private JTable table;
+    private MusicPlayerTable table;
     private TableRowSorter<DefaultTableModel> sorter;
     
     /**
@@ -46,9 +47,11 @@ public class MusicPanel extends JPanel {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
 
-        table = new JTable(tableModel);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table = new MusicPlayerTable(tableModel);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.addMouseListener(new TableMouseListener(view, model));
+
+        new MusicPlayerTablePopup(table, model, view);
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
@@ -66,7 +69,8 @@ public class MusicPanel extends JPanel {
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 1));
         scroll.setOpaque(false);
-        scroll.getViewport().setOpaque(false);
+        scroll.getViewport().setOpaque(true);
+        scroll.getViewport().setBackground(new Color(218, 218, 218));
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -113,5 +117,6 @@ public class MusicPanel extends JPanel {
 
     // getters
     public JTable getTable() { return table; }
+    public DefaultTableModel getTableModel() { return tableModel; }
     public TableRowSorter<DefaultTableModel> getTableSorter() { return sorter; }
 }

@@ -30,13 +30,16 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+/**
+ * 
+ */
 public class Model {
     // valid extensions
     private String[] musicFileExtensions;
 
     // lists of songs and directories
     private HashSet<String> directories;
-    private ArrayList<Song> songs;
+    private ArrayList<Song> queue;
 
     // database manager
     private DatabaseManager db;
@@ -75,7 +78,7 @@ public class Model {
         songEndListener = new SongEndListener(this);
 
         directories = new HashSet<>();
-        songs = new ArrayList<>();
+        queue = new ArrayList<>();
 
         musicFileExtensions = new String[] { "mp3", "wav", "flac" };
 
@@ -93,7 +96,7 @@ public class Model {
     }
 
     public void loadSongsFromDatabase() {
-        songs = new ArrayList<>(db.loadSongs());
+        queue = new ArrayList<>(db.loadSongs());
     }
 
     // manual refresh / reindex
@@ -186,12 +189,12 @@ public class Model {
         volumeControlGain.clearInputConnections();
 
         getMetadata(row);
-        samplePlayer = new SamplePlayer(audioContext, SampleManager.sample(songs.get(row).getPath()));
+        samplePlayer = new SamplePlayer(audioContext, SampleManager.sample(queue.get(row).getPath()));
         samplePlayer.setKillListener(songEndListener);
         index = row;
         volumeControlGain.addInput(samplePlayer);
 
-        db.recordPlay(songs.get(row).getPath());
+        db.recordPlay(queue.get(row).getPath());
 
         precacheNext();
     }
@@ -199,7 +202,7 @@ public class Model {
     private void getMetadata(int row) {
         metadataChanged = true;
         try {
-            AudioFile f = AudioFileIO.read(Path.of(songs.get(row).getPath()).toFile());
+            AudioFile f = AudioFileIO.read(Path.of(queue.get(row).getPath()).toFile());
             Tag tag = f.getTag();
 
             title = "";
@@ -260,26 +263,26 @@ public class Model {
     public void nextSong() {
         if (samplePlayer == null)
             return;
-        if (songs.isEmpty())
+        if (queue.isEmpty())
             return;
         if (samplePlayer.getLoopType() == SamplePlayer.LoopType.LOOP_FORWARDS) {
             setPlaybackTime(0);
             return;
         }
-        index = (index + 1 + songs.size()) % songs.size();
+        index = (index + 1 + queue.size()) % queue.size();
         play(index);
     }
 
     public void previousSong() {
         if (samplePlayer == null)
             return;
-        if (songs.isEmpty())
+        if (queue.isEmpty())
             return;
         if (getProgress() > 5) {
             setPlaybackTime(0);
             return;
         }
-        index = (index - 1 + songs.size()) % songs.size();
+        index = (index - 1 + queue.size()) % queue.size();
         play(index);
     }
 
@@ -336,8 +339,8 @@ public class Model {
         return directories;
     }
 
-    public ArrayList<Song> getSongs() {
-        return songs;
+    public ArrayList<Song> getQueue() {
+        return queue;
     }
 
     public String getTitle() {
@@ -379,9 +382,9 @@ public class Model {
     public void shuffleSongs() {
         shuffle = !shuffle;
         if (shuffle)
-            Collections.shuffle(songs);
+            Collections.shuffle(queue);
         else
-            songs = new ArrayList<>(db.loadSongs());
+            queue = new ArrayList<>(db.loadSongs());
     }
 
     public void repeatSong() {
@@ -394,11 +397,11 @@ public class Model {
     }
 
     public void precacheNext() {
-        if (songs.isEmpty())
+        if (queue.isEmpty())
             return;
-        int nextIndex = (index + 1) % songs.size();
+        int nextIndex = (index + 1) % queue.size();
         new Thread(() -> {
-            SampleManager.sample(songs.get(nextIndex).getPath());
+            SampleManager.sample(queue.get(nextIndex).getPath());
         }).start();
     }
 
@@ -476,5 +479,37 @@ public class Model {
 
     private String truncate(String text, int maxChars) {
         return text.length() > maxChars ? text.substring(0, maxChars - 1) + "…" : text;
+    }
+
+    public void createPlaylist(String name) {
+        db.createPlaylist(name);
+    }
+
+    public void deletePlaylist(String name) {
+        db.deletePlaylist(name);
+    }
+
+    public List<String> loadPlaylists() {
+        return db.loadPlaylists();
+    }
+
+    public void addSongToPlaylist(String playlistName, String songPath) {
+        db.addSongToPlaylist(playlistName, songPath);
+    }
+
+    public void removeSongFromPlaylist(String playlistName, String songPath) {
+        db.removeSongFromPlaylist(playlistName, songPath);
+    }
+
+    public List<Song> loadSongsForPlaylist(String playlistName) {
+        return db.loadSongsForPlaylist(playlistName);
+    }
+
+    public List<Song> getSongs() {
+        return queue;
+    }
+
+    public void setSongs(List<Song> songsForPlaylist) {
+        queue = new ArrayList<Song>(songsForPlaylist);
     }
 }

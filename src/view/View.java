@@ -9,6 +9,7 @@ import controller.ButtonListener;
 import controller.PlaybackTimer;
 import controller.ResizeListener;
 import model.Model;
+import view.components.MusicPanel;
 import view.components.PlayerPanel;
 import view.components.SettingsPanel;
 
@@ -17,6 +18,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.util.List;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.DisplayMode;
 
 /**
@@ -31,6 +33,9 @@ public class View {
 
     private ResizeListener resizeListener;
     private ButtonListener buttonListener;
+
+    private MusicPanel musicPanel;
+
     /**
      * constructor for the view class
      * @param model
@@ -43,7 +48,8 @@ public class View {
         PlaybackTimer playbackTimer = new PlaybackTimer(model, this);
         playbackTimer.start();
 
-        
+        musicPanel = new MusicPanel(model, this);
+
         resizeListener = new ResizeListener(this);
         buttonListener = new ButtonListener(model, this);
         
@@ -119,10 +125,10 @@ public class View {
      */
     public void changeView(Cards settings) {
         switch (settings) {
-            case Cards.SETTINGS:
+            case SETTINGS:
                 cardLayout.show(contentPane, Cards.SETTINGS.name());
                 break;
-            case Cards.PLAYER:
+            case PLAYER:
                 cardLayout.show(contentPane, Cards.PLAYER.name());
                 break;
             default:
@@ -166,14 +172,14 @@ public class View {
         settingsPanel.refreshDirectoryList();
     }
     public void pullSongs() {
-        playerPanel.getMusicPanel().setData(model.getSongs());
+        musicPanel.setData(model.getQueue());
     }
     public void pullMetadata() {
         playerPanel.getBottomBar().setSongTitle(model.getTitle());
         playerPanel.getBottomBar().setAlbum(model.getAlbum());
         playerPanel.getBottomBar().setAlbumArt(new ImageIcon(new ImageIcon(model.getArtworkBytes()).getImage().getScaledInstance(ALBUM_IMG_SIZE, ALBUM_IMG_SIZE, Image.SCALE_SMOOTH)));
         playerPanel.getBottomBar().setTotalTime(model.getLength(), model.getSeconds());
-        playerPanel.getMusicPanel().setRowSelection(model.getIndex());
+        musicPanel.setRowSelection(model.getIndex());
     }
     public void clearMetadata() {
         if (playerPanel == null) return;
@@ -192,15 +198,15 @@ public class View {
         return buttonListener;
     }
     public int rowAtPoint(Point point) {
-        return playerPanel.getMusicPanel().rowAtPoint(point);
+        return musicPanel.rowAtPoint(point);
     }
     public int convertRowIndexToModel(int row) {
-        return playerPanel.getMusicPanel().convertRowIndexToModel(row);
+        return musicPanel.convertRowIndexToModel(row);
     }
 
     // setters
     public void setRowFilter(RowFilter<Object,Object> regexFilter) {
-        playerPanel.getMusicPanel().getTableSorter().setRowFilter(regexFilter);
+        musicPanel.getTableSorter().setRowFilter(regexFilter);
     }
     public void setPlayback(String string) {
         playerPanel.getBottomBar().setPlayback(string);
@@ -213,5 +219,30 @@ public class View {
 
     public JFrame getFrame() {
         return frame;
+    }
+
+    public enum Cards {
+        PLAYER,
+        SETTINGS
+    }
+
+    public PlayerPanel getPlayerPanel() {
+        return playerPanel;
+    }
+
+    public Component getSelectedPlaylist() {
+        return playerPanel.getTabbedPane().getSelectedComponent();
+    }
+
+    public void reclaimMusicPanel() {
+        playerPanel.reclaimMusicPanel();
+    }
+
+    public MusicPanel getMusicPanel() {
+        return musicPanel;
+    }
+
+    public boolean isVisible() {
+        return frame.isVisible();
     }
 }

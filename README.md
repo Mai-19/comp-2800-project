@@ -1,10 +1,10 @@
-# COMP-2800-Project
-An all-java local music player!
+# MusicPlayer
+A lightweight all-java local music player!
 
 ## Installation
 
 ### Prerequisites
-- [OpenJDK 25](https://jdk.java.net/25/) <br> (recommended — other versions down to Java 8 may work but are untested)
+- [OpenJDK 25](https://jdk.java.net/25/) <br> (recommended, will work for Java 17 and up)
 
 ### Precompiled Steps
 1. Download the latest release [here](https://github.com/Mai-19/comp-2800-project/releases/latest)

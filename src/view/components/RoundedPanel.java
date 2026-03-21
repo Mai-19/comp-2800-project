@@ -13,6 +13,7 @@ import javax.swing.JPanel;
  */
 public class RoundedPanel extends JLayeredPane {
     private int radius;
+    private JPanel content;
 
     /**
      * constructor for the rounded panel class
@@ -22,9 +23,10 @@ public class RoundedPanel extends JLayeredPane {
     public RoundedPanel(JPanel content, int radius) {
         this.radius = radius;
         setOpaque(false);
+        this.content = content;
 
-        content.setBounds(0, 0, content.getPreferredSize().width, content.getPreferredSize().height);
-        add(content, JLayeredPane.DEFAULT_LAYER);
+        this.content.setBounds(0, 0, content.getPreferredSize().width, content.getPreferredSize().height);
+        add(this.content, JLayeredPane.DEFAULT_LAYER);
 
         RoundedBorder overlayBorder = new RoundedBorder(radius, 2);
 
