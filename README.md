@@ -3,13 +3,14 @@ An all-java local music player!
 
 ## Installation
 
-> ### Note
-> No precompiled JARS are available yet.
-
 ### Prerequisites
 - [OpenJDK 25](https://jdk.java.net/25/) <br> (recommended — other versions down to Java 8 may work but are untested)
 
-### Steps
+### Precompiled Steps
+1. Download the latest release [here](https://github.com/Mai-19/comp-2800-project/releases/latest)
+2. Run with `java -jar MusicPlayer.jar` OR double click OR right click and select run with java
+
+### Build Steps
 1. **Clone the repository**
 ```bash
 git clone https://github.com/Mai-19/comp-2800-project.git
