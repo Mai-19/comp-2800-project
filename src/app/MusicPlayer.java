@@ -5,7 +5,7 @@ import view.View;
 /**
  * Main class for the application.
  */
-public class App {
+public class MusicPlayer {
 
     /**
      * Main method for the application.

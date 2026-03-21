@@ -62,6 +62,7 @@ public class View {
 
         frame = new JFrame();
         frame.setFont(UIManager.getFont("Label.font"));
+        frame.setTitle("MusicPlayer");
 
         addComponents();
 
