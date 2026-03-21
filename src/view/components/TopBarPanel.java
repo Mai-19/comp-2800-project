@@ -1,9 +1,8 @@
 package view.components;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 
-import javax.swing.Box;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -59,8 +58,11 @@ public class TopBarPanel extends JPanel {
         centerPanel.setOpaque(false);
         centerPanel.add(searchIcon);
         centerPanel.add(searchField);
+
+        JLabel label = new JLabel(Icons.MUSIC_25);
+        label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         
-        this.add(Box.createRigidArea(new Dimension(settingsButton.getPreferredSize().width, 0)), BorderLayout.WEST);
+        this.add(label, BorderLayout.WEST);
         this.add(centerPanel, BorderLayout.CENTER);
         this.add(settingsButton, BorderLayout.EAST);
     }

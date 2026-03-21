@@ -15,6 +15,8 @@ import view.components.SettingsPanel;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.CardLayout;
 import java.awt.DisplayMode;
 
@@ -63,6 +65,7 @@ public class View {
         frame = new JFrame();
         frame.setFont(UIManager.getFont("Label.font"));
         frame.setTitle("MusicPlayer");
+        frame.setIconImages(List.of(Icons.MUSIC_16.getImage(), Icons.MUSIC_32.getImage(), Icons.MUSIC_64.getImage(), Icons.MUSIC_256.getImage()));
 
         addComponents();
 

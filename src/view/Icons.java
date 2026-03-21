@@ -28,6 +28,12 @@ public class Icons {
     public static final ImageIcon TRASH;
     public static final ImageIcon VOLUME;
 
+    public static final ImageIcon MUSIC_16;
+    public static final ImageIcon MUSIC_25;
+    public static final ImageIcon MUSIC_32;
+    public static final ImageIcon MUSIC_64;
+    public static final ImageIcon MUSIC_256;
+
     /**
      * Loads an image from the classpath and scales it to a given width and height.
      * @param path
@@ -64,5 +70,10 @@ public class Icons {
         SHUFFLE = load("icons/shuffle.png", 25, 25);
         TRASH = load("icons/trash.png", 25, 25);
         VOLUME = load("icons/volume.png", 25, 25);
+        MUSIC_16 = load("icons/music-alt.png", 16, 16);
+        MUSIC_25 = load("icons/music-alt.png", 25, 25);
+        MUSIC_32 = load("icons/music-alt.png", 32, 32);
+        MUSIC_64 = load("icons/music-alt.png", 64, 64);
+        MUSIC_256 = load("icons/music-alt.png", 256, 256);
     }
 }
