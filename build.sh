@@ -1,26 +1,32 @@
 #!/bin/bash
+set -e
 
-# compile
+# Compile
 javac -cp "lib/*" -sourcepath src -d bin src/app/MusicPlayer.java
 
-# extract dependencies
+# Extract dependencies into staging dir
 mkdir -p fatjar
 for jar in lib/*.jar; do
-    jar xf "$jar" -C fatjar 2>/dev/null || unzip -qo "$jar" -d fatjar
+    unzip -qo "$jar" -d fatjar
 done
 
-# merge SPI files
+# Merge SPI files (append, don't overwrite)
 mkdir -p fatjar/META-INF/services
 
-echo "org.jflac.sound.spi.FlacAudioFileReader
-javazoom.spi.mpeg.sampled.file.MpegAudioFileReader" > fatjar/META-INF/services/javax.sound.sampled.spi.AudioFileReader
+printf "org.jflac.sound.spi.FlacAudioFileReader\njavazoom.spi.mpeg.sampled.file.MpegAudioFileReader\n" \
+    >> fatjar/META-INF/services/javax.sound.sampled.spi.AudioFileReader
 
-echo "org.jflac.sound.spi.FlacFormatConversionProvider
-javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider" > fatjar/META-INF/services/javax.sound.sampled.spi.FormatConversionProvider
+printf "org.jflac.sound.spi.FlacFormatConversionProvider\njavazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider\n" \
+    >> fatjar/META-INF/services/javax.sound.sampled.spi.FormatConversionProvider
 
-# package
-jar cfe MusicPlayer.jar app.MusicPlayer -C bin . -C res . -C fatjar .
+# Copy your compiled classes and resources into the same staging dir
+cp -r bin/. fatjar/
+cp -r res/. fatjar/
 
-# cleanup
-rm -rf fatjar
+# Package everything from one source — no duplicate entries
+jar cfe MusicPlayer.jar app.MusicPlayer -C fatjar .
+
+# Cleanup
+rm -rf fatjar bin
+
 echo "Done! MusicPlayer.jar is ready."
