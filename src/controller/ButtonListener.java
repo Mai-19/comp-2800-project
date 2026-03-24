@@ -50,6 +50,7 @@ public class ButtonListener implements ActionListener {
             // leave settings menu (to player)
             case "back":
                 view.changeView(View.Cards.PLAYER);
+                view.pullSongs();
                 break;
             // reindex songs in the directories and get the view to pull it
             case "refresh":
