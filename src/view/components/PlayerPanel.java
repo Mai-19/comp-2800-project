@@ -36,6 +36,8 @@ public class PlayerPanel extends JPanel {
 
     private PlaylistPanel playlistPanel;
 
+    private LyricsPanel lyricsPanel;
+
     private BottomBarPanel bottomBar;
 
     private RoundedPanel rounded;
@@ -56,6 +58,10 @@ public class PlayerPanel extends JPanel {
         playlistPanel = new PlaylistPanel(model, view);
         RoundedPanel temp_rounded = new RoundedPanel(playlistPanel, 60);
         tabbedPane.addTab("Playlists", temp_rounded);
+
+        lyricsPanel = new LyricsPanel();
+        temp_rounded = new RoundedPanel(lyricsPanel, 60);
+        tabbedPane.addTab("Lyrics", temp_rounded);
 
         bottomBar = new BottomBarPanel(model, view);
 
@@ -79,6 +85,10 @@ public class PlayerPanel extends JPanel {
 
     public BottomBarPanel getBottomBar() {
         return bottomBar;
+    }
+
+    public LyricsPanel getLyricsPanel() {
+        return lyricsPanel;
     }
 
     public void reclaimMusicPanel() {

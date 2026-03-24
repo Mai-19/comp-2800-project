@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -323,7 +324,6 @@ public class Model {
 
     public boolean hasMetadataChanged() {
         if (metadataChanged) {
-            metadataChanged = false;
             return true;
         }
         return false;
@@ -511,5 +511,68 @@ public class Model {
 
     public void setSongs(List<Song> songsForPlaylist) {
         queue = new ArrayList<Song>(songsForPlaylist);
+    }
+
+    public TreeMap<Long, String> parseLrc(String audioPath) {
+        // swap the audio extension for .lrc
+        String lrcPath = audioPath.replaceAll("\\.[^.]+$", ".lrc");
+        Path path = Path.of(lrcPath);
+
+        if (!Files.exists(path))
+            return null;
+        List<String> rawLines;
+        try {
+            rawLines = Files.readAllLines(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        TreeMap<Long, String> result = new TreeMap<>();
+        // regex matches [mm:ss.xx] or [mm:ss:xx] at the start of a line
+        java.util.regex.Pattern timestampPattern = java.util.regex.Pattern
+                .compile("^\\[(\\d{2}):(\\d{2})[.：:](\\d{2,3})\\](.*)$");
+
+        boolean hasSyncedLines = false;
+
+        for (String line : rawLines) {
+            // skip metadata tags like [ar:Artist], [ti:Title] etc.
+            if (line.matches("^\\[[a-zA-Z]+:.*\\]$"))
+                continue;
+
+            java.util.regex.Matcher m = timestampPattern.matcher(line.trim());
+            if (m.matches()) {
+                hasSyncedLines = true;
+                int minutes = Integer.parseInt(m.group(1));
+                int seconds = Integer.parseInt(m.group(2));
+                String msStr = m.group(3);
+                // normalise to ms: 2-digit = centiseconds (*10), 3-digit = ms
+                long ms = msStr.length() == 2
+                        ? (minutes * 60L + seconds) * 1000 + Integer.parseInt(msStr) * 10L
+                        : (minutes * 60L + seconds) * 1000 + Integer.parseInt(msStr);
+
+                String text = m.group(4).trim();
+                if (!text.isEmpty())
+                    result.put(ms, text);
+            }
+        }
+
+        // unsynced fallback: assign evenly-spaced fake timestamps
+        if (!hasSyncedLines) {
+            long fakeMs = 0;
+            for (String line : rawLines) {
+                String trimmed = line.trim();
+                if (!trimmed.isEmpty()) {
+                    result.put(fakeMs, trimmed);
+                    fakeMs += 5000; // 5 seconds apart
+                }
+            }
+        }
+
+        return result.isEmpty() ? null : result;
+    }
+
+    public void markMetadataRetrieved() {
+        metadataChanged = false;
     }
 }

@@ -4,6 +4,8 @@ import java.awt.event.MouseAdapter;
 
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
+
 import model.Model;
 import view.View;
 
@@ -37,9 +39,16 @@ public class TableMouseListener extends MouseAdapter{
             if (row != -1) {
                 // play the song on that row
                 // convert to index in model, because otherwise a search could return the wrong index
-                model.play(view.convertRowIndexToModel(row));
-                // set playback button to the pause button
-                view.setPlayback("pause");
+                new Thread(() ->
+                {
+                    model.play(view.convertRowIndexToModel(row));
+                    // set playback button to the pause button
+                    SwingUtilities.invokeLater(() -> {
+                        view.pullMetadata();
+                        view.setPlayback("pause");
+                    });
+                
+                }).start();
             }
         }
     }

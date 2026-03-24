@@ -210,6 +210,8 @@ public class View {
             (value/60)
             +":"+
             ((value%60)<10?"0"+(value%60) : (value%60)));
+        if (playerPanel.getLyricsPanel() != null)
+            playerPanel.getLyricsPanel().updatePosition(value);
     }
 
     // interactions
@@ -236,7 +238,9 @@ public class View {
         playerPanel.getBottomBar().setAlbum(model.getAlbum());
         playerPanel.getBottomBar().setAlbumArt(new ImageIcon(new ImageIcon(model.getArtworkBytes()).getImage().getScaledInstance(ALBUM_IMG_SIZE, ALBUM_IMG_SIZE, Image.SCALE_SMOOTH)));
         playerPanel.getBottomBar().setTotalTime(model.getLength(), model.getSeconds());
+        playerPanel.getLyricsPanel().setLyrics(model.parseLrc(model.getSongs().get(model.getIndex()).getPath()));
         musicPanel.setRowSelection(model.getIndex());
+        model.markMetadataRetrieved();
     }
     public void clearMetadata() {
         if (playerPanel == null) return;
