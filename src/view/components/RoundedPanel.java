@@ -28,14 +28,14 @@ public class RoundedPanel extends JLayeredPane {
         this.content.setBounds(0, 0, content.getPreferredSize().width, content.getPreferredSize().height);
         add(this.content, JLayeredPane.DEFAULT_LAYER);
 
-        RoundedBorder overlayBorder = new RoundedBorder(radius, 2);
+        RoundedBorder overlayBorder = new RoundedBorder(radius);
 
         JPanel overlay = new JPanel();
         overlay.setOpaque(false);
 
         overlay.setBorder(overlayBorder);
 
-        overlay.setBounds(0, 0, content.getPreferredSize().width, content.getPreferredSize().height);
+        overlay.setBounds(0, 0, content.getPreferredSize().width, content.getPreferredSize().height+1);
         add(overlay, JLayeredPane.PALETTE_LAYER);
     }
 

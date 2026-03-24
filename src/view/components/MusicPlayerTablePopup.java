@@ -1,8 +1,15 @@
 package view.components;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.BorderFactory;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.border.LineBorder;
+
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import model.Model;
 import model.Song;
@@ -10,38 +17,27 @@ import view.View;
 
 public class MusicPlayerTablePopup extends JPopupMenu {
 
-    private Model model;
-    private View view;
-    private MusicPlayerTable table;
+    private final Model model;
+    private final View view;
+    private final MusicPlayerTable table;
 
     public MusicPlayerTablePopup(MusicPlayerTable table, Model model, View view) {
         this.table = table;
         this.model = model;
         this.view = view;
 
-        stylePopup(this);
+        setBorder(new LineBorder(View.BACKGROUND, 0, true));
+        setLightWeightPopupEnabled(false);
 
-        setBackground(new Color(245, 245, 245));
-    
-        setOpaque(false);
-    
         table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                handleClick(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                handleClick(e);
-            }
+            @Override public void mousePressed(MouseEvent e)  { handleClick(e); }
+            @Override public void mouseReleased(MouseEvent e) { handleClick(e); }
 
             private void handleClick(MouseEvent e) {
                 if (!e.isPopupTrigger()) return;
                 int row = table.rowAtPoint(e.getPoint());
-                if (row >= 0 && !table.isRowSelected(row)) {
+                if (row >= 0 && !table.isRowSelected(row))
                     table.setRowSelectionInterval(row, row);
-                }
                 buildMenu();
                 show(table, e.getX(), e.getY());
             }
@@ -51,16 +47,13 @@ public class MusicPlayerTablePopup extends JPopupMenu {
     private void buildMenu() {
         removeAll();
 
-        // "Add to playlist" submenu
-        JMenu addToPlaylist = new JMenu("Add to playlist");
-        addToPlaylist.setFont(addToPlaylist.getFont().deriveFont(14f));
-        stylePopup(addToPlaylist.getPopupMenu());
-
+        JMenu addToPlaylist = makeMenu("Add to playlist");
         List<String> playlists = model.loadPlaylists();
+
         if (playlists.isEmpty()) {
-            JMenuItem none = new JMenuItem("No playlists");
+            JMenuItem none = makeMenuItem("No playlists");
+            none.setFont(none.getFont().deriveFont(Font.ITALIC, 14f));
             none.setEnabled(false);
-            none.setFont(none.getFont().deriveFont(Font.ITALIC, 13f));
             addToPlaylist.add(none);
         } else {
             for (String playlist : playlists) {
@@ -71,39 +64,37 @@ public class MusicPlayerTablePopup extends JPopupMenu {
         }
         add(addToPlaylist);
 
-        // "Remove from playlist" — only show when inside a playlist
         MusicPlayerTabbedPane tabbedPane = view.getPlayerPanel().getTabbedPane();
         if (tabbedPane.getSelectedIndex() != 0) {
             addSeparator();
             JMenuItem removeItem = makeMenuItem("Remove from playlist");
-            removeItem.setForeground(new Color(200, 50, 50));
             removeItem.addActionListener(e -> removeSelectedSongsFromPlaylist());
             add(removeItem);
         }
     }
 
-    private JMenuItem makeMenuItem(String text) {
-        JMenuItem item = new JMenuItem(text) {
+    private JMenu makeMenu(String text) {
+        JMenu menu = new JMenu(text) {
             @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (getModel().isArmed()) {
-                    g2.setColor(new Color(0, 0, 0, 30));
-                    g2.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, 8, 8);
-                }
-                g2.dispose();
-                super.paintComponent(g);
+            protected Point getPopupMenuOrigin() {
+                Point p = super.getPopupMenuOrigin();
+                p.x += 4; // shift right
+                return p;
             }
         };
-        item.setFont(item.getFont().deriveFont(14f));
-        item.setOpaque(false);
-        item.setBackground(new Color(0, 0, 0, 0));
-        return item;
+        menu.setOpaque(true);
+        menu.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        menu.setFont(menu.getFont().deriveFont(14f));
+        menu.getPopupMenu().setBorder(new LineBorder(View.BACKGROUND, 0, true));
+        return menu;
     }
 
-    private void stylePopup(JPopupMenu popup) {
-        popup.setLightWeightPopupEnabled(true);
+    private JMenuItem makeMenuItem(String text) {
+        JMenuItem item = new JMenuItem(text);
+        item.setOpaque(true);
+        item.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        item.setFont(item.getFont().deriveFont(14f));
+        return item;
     }
 
     private void addSelectedSongsToPlaylist(String playlistName) {
@@ -124,18 +115,7 @@ public class MusicPlayerTablePopup extends JPopupMenu {
             Song song = model.getSongs().get(modelRow);
             model.removeSongFromPlaylist(playlist, song.getPath());
         }
-        // refresh the playlist view
         model.setSongs(model.loadSongsForPlaylist(playlist));
         view.pullSongs();
     }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(new Color(245, 245, 245));
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 21, 21);
-        g2.dispose();
-    }
-
 }

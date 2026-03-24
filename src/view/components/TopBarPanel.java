@@ -26,6 +26,7 @@ public class TopBarPanel extends JPanel {
 
         this.view = view;
 
+        setBackground(View.FOREGROUND);
         createLayout();
         addComponents();
         registerControllers();

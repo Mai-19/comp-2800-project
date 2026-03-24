@@ -167,8 +167,6 @@ public class Model {
     public void addDirectory(String absolutePath) {
         if (directories.add(absolutePath)) {
             db.addDirectory(absolutePath);
-            indexDirectory(absolutePath);
-            loadSongsFromDatabase();
         }
     }
 

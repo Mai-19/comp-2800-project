@@ -124,7 +124,7 @@ public class MusicPlayerTabbedPane extends JTabbedPane {
             int textY = rect.y + (rect.height + fm.getAscent() - fm.getDescent()) / 2;
 
             g2.setFont(tabPane.getFont());
-            g2.setColor(isSelected ? Color.BLACK : new Color(80, 80, 80));
+            g2.setColor(isSelected ? View.TEXT : View.TEXT);
             g2.drawString(title, textX, textY);
 
             g2.dispose();

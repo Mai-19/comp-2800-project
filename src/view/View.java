@@ -1,4 +1,5 @@
 package view;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -18,6 +19,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.util.List;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.DisplayMode;
 
@@ -26,6 +28,11 @@ import java.awt.DisplayMode;
  */
 public class View {
     public static final int ALBUM_IMG_SIZE;
+
+    public static Color BACKGROUND;
+    public static Color FOREGROUND;
+    public static Color ACCENT;
+    public static Color TEXT;
 
     private Model model;
     // the screens information, like refresh rate and size
@@ -44,6 +51,56 @@ public class View {
         super();
 
         this.model = model;
+
+        UIManager.put("PopupMenu.background", View.BACKGROUND.brighter().brighter());
+        UIManager.put("MenuItem.background", View.BACKGROUND.brighter().brighter());
+        UIManager.put("MenuItem.foreground", View.TEXT);
+        UIManager.put("MenuItem.selectionBackground", View.ACCENT.brighter());
+        UIManager.put("MenuItem.selectionForeground", View.BACKGROUND.brighter().brighter());
+        UIManager.put("Menu.background", View.BACKGROUND.brighter().brighter());
+        UIManager.put("Menu.foreground", View.TEXT);
+        UIManager.put("Menu.selectionBackground", View.BACKGROUND.brighter().brighter());
+        UIManager.put("Menu.selectionForeground", View.TEXT);
+        // more global
+        UIManager.put("FileChooser.background", View.FOREGROUND);
+        UIManager.put("FileChooser.foreground", View.TEXT);
+        UIManager.put("Panel.background", View.FOREGROUND);
+        UIManager.put("Label.foreground", View.TEXT);
+        UIManager.put("Button.background", View.BACKGROUND);
+        UIManager.put("Button.foreground", View.TEXT);
+        UIManager.put("TextField.background", View.BACKGROUND);
+        UIManager.put("TextField.foreground", View.TEXT);
+        UIManager.put("List.background", View.BACKGROUND);
+        UIManager.put("List.foreground", View.TEXT);
+        UIManager.put("List.selectionBackground", View.ACCENT);
+        UIManager.put("List.selectionForeground", View.TEXT);
+        // File chooser specific
+        UIManager.put("FileChooser.background", View.FOREGROUND);
+        UIManager.put("FileChooser.foreground", View.TEXT);
+        UIManager.put("FileChooser.listBackground", View.FOREGROUND);
+        UIManager.put("FileChooser.listForeground", View.TEXT);
+        UIManager.put("FileChooser.lookInLabelText", "Look In:");
+        UIManager.put("FileView.directoryIcon", null);
+        // Option pane specific  
+        UIManager.put("OptionPane.background", View.FOREGROUND);
+        UIManager.put("OptionPane.foreground", View.TEXT);
+        UIManager.put("OptionPane.messageForeground", View.TEXT);
+        // Text fields
+        UIManager.put("TextField.background", View.BACKGROUND);
+        UIManager.put("TextField.foreground", View.TEXT);
+        UIManager.put("TextField.caretForeground", View.TEXT);
+        // Lists (file chooser file list)
+        UIManager.put("List.background", View.FOREGROUND);
+        UIManager.put("List.foreground", View.TEXT);
+        UIManager.put("List.selectionBackground", View.ACCENT);
+        UIManager.put("List.selectionForeground", View.TEXT);
+        // Combo boxes (Look In dropdown)
+        UIManager.put("ComboBox.background", View.BACKGROUND);
+        UIManager.put("ComboBox.foreground", View.TEXT);
+        UIManager.put("ComboBox.selectionBackground", View.ACCENT);
+        UIManager.put("ComboBox.selectionForeground", View.TEXT);
+        UIManager.put("TextField.border", BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        UIManager.put("ComboBox.border", BorderFactory.createEmptyBorder());
 
         PlaybackTimer playbackTimer = new PlaybackTimer(model, this);
         playbackTimer.start();
@@ -165,8 +222,8 @@ public class View {
     public void togglePlayback() {
         playerPanel.getBottomBar().togglePlayback();
     }
-    public void addDirectory() {
-        settingsPanel.openFileChooser();
+    public boolean addDirectory() {
+        return settingsPanel.openFileChooser();
     }
     public void refreshDirectoryList() {
         settingsPanel.refreshDirectoryList();
@@ -244,5 +301,12 @@ public class View {
 
     public boolean isVisible() {
         return frame.isVisible();
+    }
+
+    static {
+        BACKGROUND = new Color(33, 32, 32);
+        FOREGROUND = BACKGROUND.darker();
+        ACCENT = new Color(82, 78, 78);
+        TEXT = new Color(200, 200, 200);
     }
 }

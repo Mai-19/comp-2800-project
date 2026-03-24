@@ -6,6 +6,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import model.Model;
 import view.View;
@@ -94,9 +95,15 @@ public class ButtonListener implements ActionListener {
                 break;
             // add directory to the list of directories to index
             case "add directory":
-                view.addDirectory();
-                model.indexSongs();
-                view.pullSongs();
+                if (view.addDirectory()) {
+                    new Thread(() -> {
+                        model.indexSongs();
+                        SwingUtilities.invokeLater(() -> {
+                            view.pullSongs();
+                            view.refreshDirectoryList();
+                        });
+                    }).start();
+                }
                 break;
             // remove directory from the list of directories to index
             case "remove directory":

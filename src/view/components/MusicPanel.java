@@ -1,18 +1,15 @@
 package view.components;
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import controller.TableMouseListener;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Point;
 import java.util.Collection;
 
@@ -53,12 +50,6 @@ public class MusicPanel extends JPanel {
 
         new MusicPlayerTablePopup(table, model, view);
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
         sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
 
@@ -70,7 +61,7 @@ public class MusicPanel extends JPanel {
         scroll.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 1));
         scroll.setOpaque(false);
         scroll.getViewport().setOpaque(true);
-        scroll.getViewport().setBackground(new Color(218, 218, 218));
+        scroll.getViewport().setBackground(View.FOREGROUND);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 

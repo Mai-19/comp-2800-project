@@ -59,6 +59,8 @@ public class BottomBarPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
         setPreferredSize(new Dimension(0, View.ALBUM_IMG_SIZE+20));
 
+        setBackground(View.FOREGROUND);
+
         add(buildAlbumArtAndInfo(), BorderLayout.WEST);
         add(buildCenterControls(), BorderLayout.CENTER);
         add(buildVolumePanel(), BorderLayout.EAST);
@@ -82,6 +84,8 @@ public class BottomBarPanel extends JPanel {
 
         songTitleLabel = new ScrollingLabel();
         albumArtistLabel = new ScrollingLabel();
+        songTitleLabel.setForeground(View.TEXT);
+        albumArtistLabel.setForeground(View.TEXT);
 
         infoPanel.add(songTitleLabel);
         infoPanel.add(Box.createVerticalStrut(3));
@@ -124,6 +128,8 @@ public class BottomBarPanel extends JPanel {
 
         currentTimeLabel = new JLabel("0:00");
         totalTimeLabel = new JLabel("0:00");
+        currentTimeLabel.setForeground(View.TEXT);
+        totalTimeLabel.setForeground(View.TEXT);
         progressBar = new MusicPlayerSlider(0, 100, 0);
         progressBar.setFocusable(false);
 

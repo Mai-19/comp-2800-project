@@ -2,7 +2,6 @@ package view.components;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
@@ -78,10 +77,11 @@ public class PlaylistPanel extends JPanel {
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
         header.setBorder(BorderFactory.createEmptyBorder(0, 0, 2, 0));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.GRAY));
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, View.ACCENT));
 
         JLabel title = new JLabel("Playlists");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 14f));
+        title.setForeground(View.TEXT);
 
         MusicPlayerButton addBtn = new MusicPlayerButton(Icons.ADD_DIRECTORY);
         addBtn.setActionCommand("create playlist");
@@ -125,6 +125,7 @@ public class PlaylistPanel extends JPanel {
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height + 12));
 
         JLabel label = new JLabel(name);
+        label.setForeground(View.TEXT);
 
         MusicPlayerButton deleteBtn = new MusicPlayerButton(Icons.TRASH);
         deleteBtn.setActionCommand("delete playlist:" + name);

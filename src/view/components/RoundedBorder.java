@@ -1,6 +1,5 @@
 package view.components;
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -9,6 +8,8 @@ import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
 
 import javax.swing.border.AbstractBorder;
+
+import view.View;
 
 /**
  * Class for the rounded border
@@ -47,7 +48,7 @@ public class RoundedBorder extends AbstractBorder{
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(Color.GRAY); // border color
+        g2.setColor(View.ACCENT); // border color
         g2.setStroke(new BasicStroke(2)); // border thickness
         g2.draw(new RoundRectangle2D.Double(x + 1, y + 1, width - 2, height - 2, radius, radius));
         g2.dispose();

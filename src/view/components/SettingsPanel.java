@@ -15,7 +15,6 @@ import view.Icons;
 import view.View;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -56,14 +55,20 @@ public class SettingsPanel extends JPanel {
     private JPanel buildSettingsBox() {
         JPanel wrapper = new JPanel(new GridBagLayout());
 
+        wrapper.setBackground(View.FOREGROUND);
+
         JPanel box = new JPanel(new BorderLayout());
+        box.setBackground(View.FOREGROUND);
         box.setBorder(new RoundedBorder(20));
         box.setPreferredSize(new Dimension(550, 400));
 
         JPanel titleRow = new JPanel(new BorderLayout());
+        titleRow.setBackground(View.FOREGROUND);
+        titleRow.setForeground(View.TEXT);
         titleRow.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
         JLabel title = new JLabel("Settings", SwingConstants.CENTER);
         title.setFont(title.getFont().deriveFont(Font.PLAIN, 28f));
+        title.setForeground(View.TEXT);
         titleRow.add(backBtn, BorderLayout.WEST);
         titleRow.add(title, BorderLayout.CENTER);
         titleRow.add(refreshBtn, BorderLayout.EAST);
@@ -82,18 +87,20 @@ public class SettingsPanel extends JPanel {
     private JPanel buildDirectoriesTable() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+        panel.setBackground(View.FOREGROUND);
 
         // Header row
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(220, 220, 220));
+        header.setBackground(View.FOREGROUND);
         header.setOpaque(true);
         header.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.GRAY),
+            BorderFactory.createLineBorder(View.ACCENT),
             BorderFactory.createEmptyBorder(4, 8, 4, 8)
         ));
 
         JLabel headerLabel = new JLabel("Directories");
         headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD));
+        headerLabel.setForeground(View.TEXT);
 
         addBtn = new MusicPlayerButton(Icons.ADD_DIRECTORY);
 
@@ -105,22 +112,25 @@ public class SettingsPanel extends JPanel {
         // Directory rows in a panel that stacks from the top
         directoryListPanel = new JPanel();
         directoryListPanel.setLayout(new BoxLayout(directoryListPanel, BoxLayout.Y_AXIS));
+        directoryListPanel.setBackground(View.BACKGROUND);
 
         refreshDirectoryList();
 
         // Wrap in a scroll pane so it doesn't overflow
         JScrollPane scroll = new JScrollPane(directoryListPanel);
-        scroll.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        scroll.setBorder(BorderFactory.createLineBorder(View.ACCENT));
 
         panel.add(header, BorderLayout.NORTH);
         panel.add(scroll, BorderLayout.CENTER);
 
         downloadStatsBtn = new MusicPlayerButton("Download Stats");
         downloadStatsBtn.setActionCommand("download stats");
+        downloadStatsBtn.setForeground(View.TEXT);
         downloadStatsBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
+        bottomPanel.setBackground(View.FOREGROUND);
         bottomPanel.add(downloadStatsBtn);
 
         panel.add(bottomPanel, BorderLayout.SOUTH);
@@ -150,12 +160,14 @@ public class SettingsPanel extends JPanel {
      */
     private JPanel buildDirectoryRow(String path, int index) {
         JPanel row = new JPanel(new BorderLayout());
+        row.setBackground(View.BACKGROUND);
         row.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
 
         // Lock the row height to its preferred size so it never stretches
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
 
         JLabel label = new JLabel(path);
+        label.setForeground(View.TEXT);
         MusicPlayerButton deleteBtn = new MusicPlayerButton(Icons.TRASH);
         deleteBtn.setActionCommand("remove directory:"+path);
         deleteBtn.addActionListener(view.getButtonListener());
@@ -168,7 +180,7 @@ public class SettingsPanel extends JPanel {
     /**
      * opens the file chooser to allow adding another directory
      */
-    public void openFileChooser() {
+    public boolean openFileChooser() {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int result = chooser.showOpenDialog(this);
@@ -176,6 +188,7 @@ public class SettingsPanel extends JPanel {
             model.addDirectory(chooser.getSelectedFile().getAbsolutePath());
             refreshDirectoryList();
         }
+        return result == JFileChooser.APPROVE_OPTION;
     }
 
     // getters

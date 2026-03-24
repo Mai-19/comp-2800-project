@@ -26,6 +26,7 @@ public class PlayerPanel extends JPanel {
 
         this.model = model;
         this.view = view;
+        setBackground(View.FOREGROUND);
         createLayout();
     }
 
