@@ -72,8 +72,8 @@ This project uses the **MVC (Model-View-Controller)** design pattern and is buil
 ### Option 2: Build from source
 1. **Clone the repository**
 ```bash
-git clone https://github.com/Mai-19/comp-2800-project.git
-cd comp-2800-project
+git clone https://github.com/Mai-19/java-music-player.git
+cd java-music-player
 ```
 2. **Run the build script**
 
