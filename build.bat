@@ -3,6 +3,7 @@ setlocal enabledelayedexpansion
 set ERRORLEVEL=0
 
 echo Compiling source...
+mkdir bin 2>nul
 javac -cp "lib/*" -sourcepath src -d bin src/app/MusicPlayer.java
 if %ERRORLEVEL% neq 0 (
     echo Compilation failed.
@@ -11,9 +12,11 @@ if %ERRORLEVEL% neq 0 (
 
 echo Extracting dependencies...
 mkdir fatjar 2>nul
-for %%j in (lib\*.jar) do (
-    jar xf "%%j" -C fatjar
+cd fatjar
+for %%j in (..\lib\*.jar) do (
+    jar xf "%%j"
 )
+cd ..
 
 echo Merging SPI files...
 mkdir fatjar\META-INF\services 2>nul
