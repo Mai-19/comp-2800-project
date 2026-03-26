@@ -1,4 +1,4 @@
-package app;
+
 import model.Model;
 import view.View;
 
