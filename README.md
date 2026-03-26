@@ -39,7 +39,7 @@ This project uses the **MVC (Model-View-Controller)** design pattern and is buil
 ├── res
 │   └── icons/                          # icon assets
 └── src
-    ├── app/                            # Entry point
+    ├── MusicPlayer.java                # Entry point
     ├── controller                      # Event handling
     │   ├── ...
     │   └── VolumeSliderListener.java

@@ -101,7 +101,7 @@ flowchart TD
 
 | Package | Class | Responsibility |
 |---|---|---|
-| `app` | `MusicPlayer` | Entry point. Creates the Model and View |
+|  | `MusicPlayer` | Entry point. Creates the Model and View |
 | `model` | `Model` | Central data and logic class. Manages the queue, playback, directory scanning, LRC parsing, and stats image generation |
 | `model` | `DatabaseManager` | All SQLite read and write operations across every table |
 | `model` | `Song` | Data object holding a songs metadata and file path |
