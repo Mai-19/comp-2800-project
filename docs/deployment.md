@@ -133,6 +133,100 @@ All Songs tab.
 
 ---
 
+## 5. Virtual Machine Deployment
+ 
+### 5.1 Background and Challenges
+ 
+The original course requirement asked for the application to be deployed on the
+University of Windsor SCS MyWeb server so that graders could run it without any local
+installation. However, MyWeb is a shared web hosting environment designed for PHP and
+MySQL web applications. After investigation it was determined that MyWeb cannot host or
+execute a Java Swing desktop GUI application, making it incompatible with this project.
+We explored alternative hosting environments like AWS and AZURE, but ran into minor road
+blocks that prevented us from deploying on these platforms, and ultimately decided to
+host our own virtual machine.
+ 
+### 5.2 Solution Overview
+ 
+A browser-accessible virtual machine was set up on a personal home server and exposed
+publicly via a custom domain. The VM runs a full Ubuntu KDE desktop environment inside
+a Docker container, with OpenJDK 25 pre-installed and the application JAR placed on the
+desktop for immediate use. Graders can access a live running instance of the application
+directly in their browser with no installation, configuration, or credentials required.
+ 
+**Access URL:** [https://mayar.dev](https://mayar.dev)
+ 
+### 5.3 Infrastructure Stack
+ 
+| Component | Technology | Purpose |
+|---|---|---|
+| Container runtime | Docker | Hosts the VM container |
+| Desktop environment | LinuxServer Webtop (Ubuntu KDE) | Full graphical Linux desktop in a container |
+| Remote display | KasmVNC (built into Webtop) | Streams the desktop to the browser over HTTPS |
+| Java runtime | OpenJDK 25 (installed via Docker mod) | Runs the application JAR |
+| Reverse proxy | Caddy | Handles HTTPS termination and routes traffic to the container |
+| DNS and domain | Cloudflare + mayar.dev | Provides a stable public URL via router port forwarding |
+ 
+### 5.4 Docker Compose Configuration
+ 
+The VM container is defined with the following Docker Compose configuration:
+ 
+```yaml
+webtop:
+  image: lscr.io/linuxserver/webtop:ubuntu-kde
+  container_name: webtop
+  security_opt:
+    - seccomp:unconfined
+  environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=America/Toronto
+    - HARDEN_DESKTOP=true
+    - CUSTOM_USER=cs2800gr3
+    - TITLE=ubuntu
+    - DOCKER_MODS=linuxserver/mods:universal-package-install
+    - INSTALL_PACKAGES=openjdk-25-jdk
+  volumes:
+    - /mnt/storage/webtop:/config
+  ports:
+    - "3000:3000"
+    - "3001:3001"
+  hostname: cs2800gr3
+  shm_size: "1gb"
+  restart: unless-stopped
+  deploy:
+    resources:
+      limits:
+        cpus: '4'
+        memory: 6G
+      reservations:
+        cpus: '2'
+        memory: 2G
+```
+ 
+Key configuration decisions:
+ 
+- `HARDEN_DESKTOP=true` locks down the desktop environment so that casual visitors who
+  stumble onto the URL cannot modify the system
+- `INSTALL_PACKAGES=openjdk-25-jdk` installs Java automatically at container startup
+  via the LinuxServer Docker mods system, requiring no manual Java installation
+- `restart: unless-stopped` keeps the container running across server reboots for the
+  duration of the grading period
+ 
+### 5.5 Accessing the Application
+ 
+1. Navigate to [https://mayar.dev](https://mayar.dev) in any modern browser
+2. The Ubuntu KDE desktop will load directly — no login is required
+3. Double-click the **MusicPlayer** shortcut on the desktop to launch the application
+4. The application JAR is also available at `/home/cs2800gr3/java-music-player/MusicPlayer.jar`
+   if preferred to launch from the terminal
+ 
+A sample set of music files are pre-loaded in the VM for testing purposes.
+The music library is pre-configured so the application loads with songs visible
+immediately on first open.
+ 
+---
+
 ## 6. Known Limitations
 
 | Issue | Description | Workaround |
